@@ -23,4 +23,4 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
           repository: milosz08/jwizard-management
           readme-filepath: ./docker/README.md
-          short-description: "Infrastructure web management interface for simplify control and updates."
+          short-description: "Web interface to simplify management of JWizard infrastructure."

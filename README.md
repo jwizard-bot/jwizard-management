@@ -5,9 +5,8 @@
 | [[Docker installation](docker/README.md)]
 
 JWizard is an open-source Discord music bot handling audio content from various multimedia sources
-with innovative web player. This repository contains full stack app written in Kotlin and React for
-managing JWizard infrastructure (or other services as Lavalink) for simplifier management and
-updates.
+with innovative web player. This repository contains web interface to simplify configuration,
+updates and management of JWizard infrastructure.
 
 ## Table of content
 

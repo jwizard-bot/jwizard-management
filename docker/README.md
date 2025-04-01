@@ -1,9 +1,8 @@
 # JWizard Management
 
 JWizard is an open-source Discord music bot handling audio content from various multimedia sources
-with innovative web player. This repository contains full stack app written in Kotlin and React for
-managing JWizard infrastructure (or other services as Lavalink) for simplifier management and
-updates.
+with innovative web player. This repository contains web interface to simplify configuration,
+updates and management of JWizard infrastructure.
 
 [Webpage](https://jwizard.pl)
 | [GitHub repository](https://github.com/jwizard-bot/jwizard-management)
