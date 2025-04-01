@@ -1,0 +1,11 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="JWizard Management (::8766)" type="JetRunConfigurationType">
+    <option name="MAIN_CLASS_NAME" value="pl.jwizard.jwm.server.JWizardManagementEntrypointKt" />
+    <module name="jwizard-management.jwm-server.main" />
+    <shortenClasspath name="NONE" />
+    <option name="VM_PARAMETERS" value="-Druntime.profiles=dev -Denv.enabled=true -Xmx512m" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

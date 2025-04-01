@@ -1,0 +1,7 @@
+vault:
+  kv:
+    application-names:
+      - management
+
+server:
+  port: ${vault:V_SERVER_PORT}

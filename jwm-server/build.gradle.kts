@@ -1,0 +1,74 @@
+import org.gradle.api.tasks.testing.logging.TestLogEvent
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
+plugins {
+	alias(libs.plugins.kotlinJvm)
+	alias(libs.plugins.shadowJar)
+}
+
+group = "pl.jwizard"
+version = getProperty("projectVersion")
+
+// only for java classes
+java {
+	sourceCompatibility = JavaVersion.VERSION_17
+	targetCompatibility = JavaVersion.VERSION_17
+}
+
+kotlin {
+	compilerOptions {
+		jvmTarget.set(JvmTarget.JVM_17)
+	}
+}
+
+repositories {
+	mavenCentral()
+	mavenLocal()
+	maven {
+		url = uri("https://m2.miloszgilga.pl/private")
+		credentials {
+			username = getProperty("mavenName")
+			password = getProperty("mavenSecret")
+		}
+	}
+}
+
+dependencies {
+	implementation(libs.kotlin)
+	implementation(libs.logbackClassic)
+	implementation(libs.jwizardLib)
+
+	testImplementation(libs.junitJupiter)
+	testImplementation(libs.junitJupiterEngine)
+}
+
+tasks {
+	processResources {
+		dependsOn(":jwm-client:copyFrontendToBackend")
+	}
+
+	jar {
+		manifest {
+			attributes(
+				"Main-Class" to "pl.jwizard.jwm.server.JWizardManagementEntrypointKt"
+			)
+		}
+	}
+
+	shadowJar {
+		archiveBaseName.set("jwizard-management")
+		archiveClassifier.set("")
+		archiveVersion.set("")
+		destinationDirectory.set(file("$rootDir/.bin"))
+	}
+
+	test {
+		useJUnitPlatform()
+		testLogging {
+			events(TestLogEvent.PASSED, TestLogEvent.SKIPPED, TestLogEvent.FAILED)
+		}
+	}
+}
+
+// retrieves root property
+fun getProperty(name: String) = rootProject.extra[name] as String

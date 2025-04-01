@@ -1,0 +1,19 @@
+[versions]
+gradleNodeVersion  = "7.1.0"
+junitJupiterVersion = "5.11.4"
+jwizardLibVersion = "latest"
+kotlinVersion = "2.0.20"
+logbackVersion = "1.5.7"
+shadowJarVersion = "8.1.1"
+
+[libraries]
+junitJupiter = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junitJupiterVersion" }
+junitJupiterEngine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junitJupiterVersion" }
+jwizardLib = { module = "pl.jwizard:jwizard-lib", version.ref = "jwizardLibVersion" }
+kotlin = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlinVersion" }
+logbackClassic = { module = "ch.qos.logback:logback-classic", version.ref = "logbackVersion" }
+
+[plugins]
+kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlinVersion" }
+shadowJar = { id = "com.github.johnrengelman.shadow", version.ref = "shadowJarVersion" }
+gradleNode = { id = "com.github.node-gradle.node", version.ref = "gradleNodeVersion" }

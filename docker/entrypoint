@@ -1,0 +1,8 @@
+#!/bin/sh
+
+java \
+	-Xms$JWIZARD_XMS \
+	-Xmx$JWIZARD_XMX \
+	-Druntime.profiles=prod \
+	-Denv.enabled=false \
+	-jar $JAR_NAME
