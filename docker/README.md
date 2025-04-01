@@ -53,7 +53,7 @@ services:
     networks:
       - jwizard-network
 
-# other containers...
+  # other containers...
 
 networks:
   jwizard-network:
