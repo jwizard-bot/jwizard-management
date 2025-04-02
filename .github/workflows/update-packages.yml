@@ -7,6 +7,7 @@ on:
     paths:
       - ".github/workflows/update-packages.yml"
       - "gradle/libs.versions.toml"
+      - "jwm-client/yarn.lock"
 
 jobs:
   update-packages:
@@ -31,7 +32,13 @@ jobs:
       - name: Grand permissions
         run: chmod +x exec/run-with-config
 
-      - name: Run packages grabber
+      - name: Run packages grabber (server)
         run: exec/run-with-config packages_grabber \
           "${{ secrets.CONFIG_FILE_CONTENT }}" \
           --repo ${{ github.repository }}
+
+      - name: Run packages grabber (client)
+        run: exec/run-with-config packages_grabber \
+          "${{ secrets.CONFIG_FILE_CONTENT }}" \
+          --repo ${{ github.repository }}
+          --dir jwm-client
