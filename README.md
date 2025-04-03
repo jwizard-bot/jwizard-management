@@ -88,10 +88,19 @@ where `Xmx` and `Xms` parameters are optional and can be modified.
 > and `-Xmx128m`. More information you will find
 > [here](https://docs.oracle.com/cd/E74363_01/ohi_vbp_-_installation_guide--20160224-094432-html-chunked/s66.html).
 
-8. To run client development server, type:
+8. To run client development server, install packages via:
 
 ```bash
 $ cd jwm-client
+$ yarn install --frozen-lockfile
+```
+
+> [!TIP]
+> If you do not have yarn, install via: `npm i -g yarn`.
+
+and run it via:
+
+```bash
 $ yarn run dev
 ```
 
