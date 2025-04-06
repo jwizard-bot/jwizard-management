@@ -5,3 +5,10 @@ vault:
 
 server:
   port: ${vault:V_SERVER_PORT}
+  aes-secret-key: ${vault:V_AES_SECRET_KEY}
+  auth:
+    admin-login: ${vault:V_DEFAULT_ADMIN_LOGIN}
+    session:
+      ttl-sec: 3600 # 1h
+      sid-token-length: 32 # in bytes
+      csrf-token-length: 32 # in bytes

@@ -1,4 +1,4 @@
-package pl.jwizard.jwm.server.init
+package pl.jwizard.jwm.server.core
 
 import io.javalin.config.JavalinConfig
 import io.javalin.http.staticfiles.StaticFileConfig

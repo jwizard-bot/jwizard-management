@@ -1,0 +1,3 @@
+server:
+  auth:
+    cookie-domain: management.jwizard.pl
