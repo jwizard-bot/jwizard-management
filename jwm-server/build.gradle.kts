@@ -34,6 +34,7 @@ repositories {
 }
 
 dependencies {
+	implementation(libs.bcrypt)
 	implementation(libs.kotlin)
 	implementation(libs.logbackClassic)
 	implementation(libs.jwizardLib)
