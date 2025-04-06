@@ -8,7 +8,7 @@ import pl.jwizard.jwm.server.http.actuator.dto.ActuatorHealthResDto
 
 @Component
 internal class ActuatorController : HttpControllerBase {
-	override val basePath = "/api/actuator"
+	override val basePath = "/api/v1/actuator"
 
 	private val getHealth = RouteHandler { ctx ->
 		val resDto = ActuatorHealthResDto(status = "UP")
