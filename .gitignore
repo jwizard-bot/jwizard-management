@@ -6,5 +6,6 @@ build/
 out/
 .bin/
 node_modules/
+target/
 
 .env
