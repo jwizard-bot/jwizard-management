@@ -1,7 +1,10 @@
 import * as React from 'react';
 import { lazy } from 'react';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
-import { MainLayout } from '@/router/main-layout.tsx';
+import { ProtectedLayout } from '@/router/layout/protected-layout';
+import { UnprotectedLayout } from '@/router/layout/unprotected-layout';
+import { RootLayout } from '@/router/root-layout';
+import { RouteProtector } from '@/router/route-protector';
 
 const LoginPage = lazy(() => import('@/page/login-page'));
 const RootPage = lazy(() => import('@/page/root-page'));
@@ -10,17 +13,29 @@ const NotFoundPage = lazy(() => import('@/page/not-found-page'));
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <MainLayout />,
+    element: <RootLayout />,
     children: [
-      { path: '/', element: <RootPage /> },
-      { path: '/login', element: <LoginPage /> },
+      {
+        path: '/auth',
+        element: (
+          <RouteProtector
+            transformFc={loggedIn => !loggedIn}
+            redirectTo="/"
+            PageComponent={UnprotectedLayout}
+          />
+        ),
+        children: [{ path: 'login', element: <LoginPage /> }],
+      },
+      {
+        path: '/',
+        element: <RouteProtector PageComponent={ProtectedLayout} />,
+        children: [{ path: '/', element: <RootPage /> }],
+      },
       { path: '*', element: <NotFoundPage /> },
     ],
   },
 ]);
 
-const AppRouter: React.FC = (): React.ReactElement => (
-  <RouterProvider router={router} />
-);
+const AppRouter: React.FC = (): React.ReactElement => <RouterProvider router={router} />;
 
 export { AppRouter };
