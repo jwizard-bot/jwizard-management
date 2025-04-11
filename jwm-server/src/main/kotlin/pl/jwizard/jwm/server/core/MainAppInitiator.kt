@@ -6,9 +6,13 @@ import org.springframework.core.io.ClassPathResource
 import org.springframework.stereotype.Component
 import pl.jwizard.jwl.AppInitiator
 import pl.jwizard.jwl.server.HttpServer
+import pl.jwizard.jwm.server.core.spi.InitAppService
 
 @Component
-internal class MainAppInitiator(private val httpServer: HttpServer) : AppInitiator {
+internal class MainAppInitiator(
+	private val initAppService: InitAppService,
+	private val httpServer: HttpServer,
+) : AppInitiator {
 	companion object {
 		private const val SPA_CLASSPATH_PATH: String = "/static"
 	}
@@ -25,6 +29,7 @@ internal class MainAppInitiator(private val httpServer: HttpServer) : AppInitiat
 	}
 
 	override fun onInit() {
+		initAppService.createOrUpdateDefaultAdminUser()
 		httpServer.init(extendedConfig = ::createServerConfig)
 	}
 }
