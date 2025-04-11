@@ -1,5 +1,5 @@
 import { RootState } from '@/redux';
-import { mainSlice } from '@/redux/slice/main-slice.ts';
+import { mainSlice } from '@/redux/slice/main-slice';
 import { fetchBaseQuery } from '@reduxjs/toolkit/query';
 
 const baseQuery = fetchBaseQuery({

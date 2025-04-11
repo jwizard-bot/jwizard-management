@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Navigate } from 'react-router';
 import { SuspenseFallback } from '@/component';
-import { useMainSlice } from '@/redux/slice/main-slice.ts';
+import { useMainSlice } from '@/redux/slice/main-slice';
 
 type Props = {
   redirectTo?: string;
