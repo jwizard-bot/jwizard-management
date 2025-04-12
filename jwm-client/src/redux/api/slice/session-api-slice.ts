@@ -1,3 +1,4 @@
+import { enqueueSnackbar } from 'notistack';
 import { baseQuery } from '@/redux/api/base-query';
 import { CsrfResDto, RevalidateResDto } from '@/redux/api/type/session-api';
 import { listenerMiddleware } from '@/redux/listener-middleware';
@@ -11,14 +12,8 @@ const sessionApiSlice = createApi({
     revalidateSession: builder.query<RevalidateResDto, void>({
       query: () => 'v1/session/revalidate',
     }),
-    getCsrfToken: builder.query<CsrfResDto, void>({
+    getCsrfToken: builder.mutation<CsrfResDto, void>({
       query: () => 'v1/session/@me/csrf',
-    }),
-    logout: builder.mutation<void, void>({
-      query: () => ({
-        url: 'v1/session/logout',
-        method: 'DELETE',
-      }),
     }),
   }),
 });
@@ -32,7 +27,7 @@ listenerMiddleware.startListening({
       dispatch(sessionApiSlice.endpoints.getCsrfToken.initiate());
     } else {
       if (expired) {
-        console.log('show toast session expired');
+        enqueueSnackbar({ message: 'Session is expired. Log in again.', variant: 'warning' });
       }
       dispatch(setInitialized(true));
     }
@@ -48,15 +43,6 @@ listenerMiddleware.startListening({
   },
 });
 
-listenerMiddleware.startListening({
-  matcher: sessionApiSlice.endpoints.logout.matchFulfilled,
-  effect: async (_, { dispatch }) => {
-    dispatch(setLoggedIn(false));
-    dispatch(setCsrf(null));
-    console.log('show toast logout');
-  },
-});
-
-export const { useRevalidateSessionQuery, useLogoutMutation } = sessionApiSlice;
+export const { useRevalidateSessionQuery } = sessionApiSlice;
 
 export { sessionApiSlice };

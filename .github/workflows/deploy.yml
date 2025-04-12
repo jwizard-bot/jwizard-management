@@ -50,6 +50,7 @@ jobs:
           ./gradlew shadowJar -PcopyResources --no-daemon
         env:
           JWIZARD_VERSION: ${{ steps.version.outputs.sha_short }}
+          VITE_BUILD_VERSION: '${{ steps.version.outputs.sha_short }}'
           JWIZARD_MAVEN_NAME: ${{ secrets.MVN_LIB_READER_NAME }}
           JWIZARD_MAVEN_SECRET: ${{ secrets.MVN_LIB_READER_SECRET }}
 

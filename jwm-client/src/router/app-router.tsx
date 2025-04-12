@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { lazy } from 'react';
+import { Navigate } from 'react-router';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import { ProtectedLayout } from '@/router/layout/protected-layout';
 import { UnprotectedLayout } from '@/router/layout/unprotected-layout';
@@ -8,7 +9,6 @@ import { RouteProtector } from '@/router/route-protector';
 
 const LoginPage = lazy(() => import('@/page/login-page'));
 const RootPage = lazy(() => import('@/page/root-page'));
-const NotFoundPage = lazy(() => import('@/page/not-found-page'));
 
 const router = createBrowserRouter([
   {
@@ -31,7 +31,7 @@ const router = createBrowserRouter([
         element: <RouteProtector PageComponent={ProtectedLayout} />,
         children: [{ path: '/', element: <RootPage /> }],
       },
-      { path: '*', element: <NotFoundPage /> },
+      { path: '*', element: <Navigate to="/" replace /> },
     ],
   },
 ]);

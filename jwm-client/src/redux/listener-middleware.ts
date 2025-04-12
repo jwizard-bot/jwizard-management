@@ -1,3 +1,4 @@
+import { enqueueSnackbar } from 'notistack';
 import { createListenerMiddleware, isRejectedWithValue } from '@reduxjs/toolkit';
 
 const listenerMiddleware = createListenerMiddleware();
@@ -23,7 +24,7 @@ listenerMiddleware.startListening({
     if (error.status in errorMessages) {
       errorMessage = errorMessages[error.status];
     }
-    console.log(errorMessage);
+    enqueueSnackbar({ message: errorMessage, variant: 'error' });
   },
 });
 

@@ -25,9 +25,7 @@ type Props = {
   children: React.ReactNode;
 };
 
-const MuiThemeSupplier: React.FC<Props> = ({
-  children,
-}): React.ReactElement => (
+const MuiThemeSupplier: React.FC<Props> = ({ children }): React.ReactElement => (
   <ThemeProvider theme={darkTheme}>
     <CssBaseline />
     <GlobalStyles styles={globalStyles} />
