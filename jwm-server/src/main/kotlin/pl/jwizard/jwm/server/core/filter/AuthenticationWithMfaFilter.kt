@@ -12,5 +12,5 @@ class AuthenticationWithMfaFilter(
 	environment: BaseEnvironment,
 ) : AuthenticationFilterBase(sessionFilterService, environment, Role.MFA_AUTHENTICATED) {
 	// check if user which has mfa enabled, passed and validated mfa token
-	override fun onAdditionalCheck(sessionUser: SessionUser) = sessionUser.mfaPassed != false
+	override fun onAdditionalCheck(sessionUser: SessionUser) = sessionUser.mfaPassed ?: true
 }
