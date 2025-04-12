@@ -13,7 +13,7 @@ const AppFooter: React.FC = (): React.ReactElement => {
   return (
     <Container maxWidth="xl">
       <Divider />
-      <Grid container spacing={2} mt={3} mb={4}>
+      <Grid container spacing={2} my={4}>
         <Grid size={{ xs: 12, md: 4 }} sx={{ textAlign: isMobile ? 'center' : 'left' }}>
           <Link href="https://status.jwizard.pl" target="_blank">
             Service status
