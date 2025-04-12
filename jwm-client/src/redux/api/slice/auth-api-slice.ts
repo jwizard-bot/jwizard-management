@@ -1,9 +1,9 @@
 import { enqueueSnackbar } from 'notistack';
-import { baseQuery } from '@/redux/api/base-query.ts';
-import { sessionApiSlice } from '@/redux/api/slice/session-api-slice.ts';
-import { LoginReqDto, LoginResDto } from '@/redux/api/type/auth-api.ts';
-import { listenerMiddleware } from '@/redux/listener-middleware.ts';
-import { setCsrf, setLoggedIn } from '@/redux/slice/main-slice.ts';
+import { baseQuery } from '@/redux/api/base-query';
+import { sessionApiSlice } from '@/redux/api/slice/session-api-slice';
+import { LoginReqDto, LoginResDto } from '@/redux/api/type/auth-api';
+import { listenerMiddleware } from '@/redux/listener-middleware';
+import { setCsrf, setLoggedIn } from '@/redux/slice/main-slice';
 import { createApi } from '@reduxjs/toolkit/query/react';
 
 const authApiSlice = createApi({

@@ -5,7 +5,7 @@ import { ReduxStoreWrapper } from '@/redux';
 import { AppRouter } from '@/router';
 import { AppInitiator } from '@/router/app-initiator';
 import { MuiThemeSupplier } from '@/util/mui-theme-supplier';
-import { SnackbarWrapper } from '@/util/snackbar-wrapper.tsx';
+import { SnackbarWrapper } from '@/util/snackbar-wrapper';
 
 const rootElement = document.getElementById('app-mount') as HTMLElement;
 const root = ReactDOM.createRoot(rootElement);
