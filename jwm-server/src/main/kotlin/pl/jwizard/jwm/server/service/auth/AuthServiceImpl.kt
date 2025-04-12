@@ -10,6 +10,7 @@ import pl.jwizard.jwm.server.http.auth.AuthService
 import pl.jwizard.jwm.server.http.auth.dto.LoginReqDto
 import pl.jwizard.jwm.server.http.auth.dto.SessionData
 import pl.jwizard.jwm.server.property.ServerProperty
+import pl.jwizard.jwm.server.service.CaptchaService
 import pl.jwizard.jwm.server.service.crypto.EncryptService
 import pl.jwizard.jwm.server.service.crypto.SecureRndGeneratorService
 import pl.jwizard.jwm.server.service.spi.SessionSupplier
@@ -23,6 +24,7 @@ class AuthServiceImpl(
 	private val secureRndGeneratorService: SecureRndGeneratorService,
 	private val userAgentExtractor: UserAgentExtractor,
 	private val geolocationProvider: GeolocationProvider,
+	private val captchaService: CaptchaService,
 	private val userSupplier: UserSupplier,
 	private val sessionSupplier: SessionSupplier,
 	environment: BaseEnvironment,
@@ -41,6 +43,10 @@ class AuthServiceImpl(
 		.getProperty<String>(ServerProperty.SERVER_AUTH_COOKIE_DOMAIN)
 
 	override fun login(reqDto: LoginReqDto, userAgent: String?, ipAddress: String?): SessionData? {
+		val success = captchaService.performChallenge(ipAddress, reqDto.cfToken)
+		if (!success) {
+			return null
+		}
 		val userCredentials = userSupplier.getUserCredentials(reqDto.login) ?: return null
 		// validate password hash
 		if (!encryptService.validateHash(reqDto.password, userCredentials.passwordHash)) {

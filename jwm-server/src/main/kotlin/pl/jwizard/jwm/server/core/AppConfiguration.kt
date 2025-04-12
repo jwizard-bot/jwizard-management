@@ -7,6 +7,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import org.springframework.context.annotation.Bean
 import org.springframework.stereotype.Component
+import pl.jwizard.jwl.http.SecureHttpClientService
 import pl.jwizard.jwl.ioc.IoCKtContextFactory
 import pl.jwizard.jwl.property.BaseEnvironment
 import pl.jwizard.jwl.server.HttpServer
@@ -30,9 +31,6 @@ internal class AppConfiguration {
 	}
 
 	@Bean
-	fun httpClient(): HttpClient = HttpClient.newHttpClient()
-
-	@Bean
 	fun environment() = BaseEnvironment()
 
 	@Bean
@@ -49,9 +47,17 @@ internal class AppConfiguration {
 	fun userAgentExtractor(environment: BaseEnvironment) = UserAgentExtractor(environment)
 
 	@Bean
-	fun geolocationProvider(
-		httpClient: HttpClient,
+	fun secureHttpClientService(
 		objectMapper: ObjectMapper,
+		environment: BaseEnvironment
+	): SecureHttpClientService {
+		val httpClient = HttpClient.newHttpClient()
+		return SecureHttpClientService(httpClient, objectMapper, environment)
+	}
+
+	@Bean
+	fun geolocationProvider(
+		secureHttpClientService: SecureHttpClientService,
 		environment: BaseEnvironment,
-	) = GeolocationProvider(httpClient, objectMapper, environment)
+	) = GeolocationProvider(secureHttpClientService, environment)
 }

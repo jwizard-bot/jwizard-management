@@ -12,3 +12,8 @@ server:
       ttl-sec: 3600 # 1h
       sid-token-length: 32 # in bytes
       csrf-token-length: 32 # in bytes
+
+cf:
+  captcha:
+    verify-endpoint: https://challenges.cloudflare.com/turnstile/v0/siteverify
+    secret-key: ${vault:V_CF_CAPTCHA_SECRET_KEY}

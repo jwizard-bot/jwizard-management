@@ -17,4 +17,8 @@ enum class ServerProperty(
 	SERVER_AUTH_SESSION_TTL_SEC("server.auth.session.ttl-sec", Int::class),
 	SERVER_AUTH_SESSION_SID_TOKEN_LENGTH("server.auth.session.sid-token-length", Int::class),
 	SERVER_AUTH_SESSION_CSRF_TOKEN_LENGTH("server.auth.session.csrf-token-length", Int::class),
+
+	// cf
+	CF_CAPTCHA_VERIFY_ENDPOINT("cf.captcha.verify-endpoint"),
+	CF_CAPTCHA_SECRET_KEY("cf.captcha.secret-key"),
 }
