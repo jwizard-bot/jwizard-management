@@ -1,18 +1,21 @@
 package pl.jwizard.jwm.server.http.session
 
-import pl.jwizard.jwm.server.core.auth.LoggedUser
+import pl.jwizard.jwm.server.core.auth.SessionUser
 import pl.jwizard.jwm.server.http.session.dto.CsrfTokenResDto
 import pl.jwizard.jwm.server.http.session.dto.RevalidateStateResDto
 import pl.jwizard.jwm.server.http.session.dto.SessionsDataResDto
 
 interface SessionService {
-	fun mySessions(loggedUser: LoggedUser): SessionsDataResDto
+	fun mySessions(sessionUser: SessionUser): SessionsDataResDto
 
-	fun deleteMySessionsBasedSessionId(toDeleteSessionId: String, loggedUser: LoggedUser): Boolean
+	fun deleteMySessionsBasedSessionId(
+		toDeleteSessionId: ByteArray,
+		sessionUser: SessionUser,
+	): Boolean
 
-	fun deleteAllMySessionsWithoutCurrentSession(loggedUser: LoggedUser)
+	fun deleteAllMySessionsWithoutCurrentSession(sessionUser: SessionUser)
 
-	fun updateAndGetCsrfToken(sessionId: String): CsrfTokenResDto
+	fun updateAndGetCsrfToken(sessionId: ByteArray): CsrfTokenResDto
 
-	fun revalidate(sessionId: String?): RevalidateStateResDto
+	fun revalidate(sessionId: ByteArray?): RevalidateStateResDto
 }

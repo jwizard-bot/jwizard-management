@@ -8,7 +8,8 @@ import pl.jwizard.jwl.util.base64encode
 import pl.jwizard.jwl.util.logger
 import pl.jwizard.jwl.util.timeDifference
 import pl.jwizard.jwm.server.core.ApiHttpHeader
-import pl.jwizard.jwm.server.core.auth.LoggedUser
+import pl.jwizard.jwm.server.core.auth.SessionUser
+import pl.jwizard.jwm.server.http.dto.LoggedUserData
 import pl.jwizard.jwm.server.http.session.SessionService
 import pl.jwizard.jwm.server.http.session.dto.CsrfTokenResDto
 import pl.jwizard.jwm.server.http.session.dto.RevalidateStateResDto

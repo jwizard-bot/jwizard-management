@@ -40,7 +40,9 @@ interface SessionSupplier {
 
 	fun updateSessionTime(sessionId: ByteArray, sessionExpiredAtUtc: LocalDateTime): Int
 
-	fun deleteSession(sessionId: String): Int
+	fun setMfaValidationChecked(sessionId: ByteArray, passed: Boolean): Int
 
-	fun deleteAllSessions(userId: Long, currentSessionId: String): Int
+	fun deleteSession(sessionId: ByteArray): Int
+
+	fun deleteAllSessions(userId: Long, currentSessionId: ByteArray): Int
 }

@@ -43,4 +43,13 @@ class UserSqlSupplier(private val jdbiQuery: JdbiQuery) : UserSupplier {
 		columns = mapOf("password" to SqlColumn(newPasswordHash, JDBCType.CHAR)),
 		findColumn = "login" to SqlColumn(login, JDBCType.VARCHAR),
 	)
+
+	override fun changeInitPassword(userId: Long, newPasswordHash: String) = jdbiQuery.updateSingle(
+		tableName = "management_users",
+		columns = mapOf(
+			"password" to SqlColumn(newPasswordHash, JDBCType.CHAR),
+			"init_password_changed" to SqlColumn(true, JDBCType.BOOLEAN),
+		),
+		findColumn = "id" to SqlColumn(userId, JDBCType.BIGINT),
+	)
 }

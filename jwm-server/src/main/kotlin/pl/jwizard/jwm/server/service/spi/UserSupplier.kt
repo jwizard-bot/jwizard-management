@@ -12,4 +12,6 @@ interface UserSupplier {
 	fun createUser(login: String, passwordHash: String, isAdmin: Boolean): Int
 
 	fun updateUserPassword(login: String, newPasswordHash: String): Int
+
+	fun changeInitPassword(userId: Long, newPasswordHash: String): Int
 }

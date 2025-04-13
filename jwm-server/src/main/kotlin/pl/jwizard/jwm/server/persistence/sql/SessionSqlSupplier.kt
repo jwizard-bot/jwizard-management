@@ -115,7 +115,18 @@ class SessionSqlSupplier(private val jdbiQuery: JdbiQuery) : SessionSupplier {
 		columns = mapOf(
 			"expired_at_utc" to SqlColumn(sessionExpiredAtUtc, JDBCType.TIMESTAMP),
 		),
-		findColumn = "session_id" to SqlColumn(base64decode(sessionId), JDBCType.BINARY),
+		findColumn = "session_id" to SqlColumn(sessionId, JDBCType.BINARY),
+	)
+
+	override fun setMfaValidationChecked(
+		sessionId: ByteArray,
+		passed: Boolean,
+	) = jdbiQuery.updateSingle(
+		tableName = "management_user_sessions",
+		columns = mapOf(
+			"mfa_passed" to SqlColumn(passed, JDBCType.BOOLEAN),
+		),
+		findColumn = "session_id" to SqlColumn(sessionId, JDBCType.BINARY),
 	)
 
 	override fun deleteSession(sessionId: ByteArray): Int {

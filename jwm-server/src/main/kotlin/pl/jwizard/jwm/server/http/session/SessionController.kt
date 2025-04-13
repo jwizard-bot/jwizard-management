@@ -1,14 +1,17 @@
 package pl.jwizard.jwm.server.http.session
 
 import io.javalin.http.HttpStatus
-import io.javalin.http.NotFoundResponse
 import org.springframework.stereotype.Component
+import pl.jwizard.jwl.server.exception.HttpException
 import pl.jwizard.jwl.server.route.HttpControllerBase
 import pl.jwizard.jwl.server.route.RouteDefinitionBuilder
 import pl.jwizard.jwl.server.route.handler.RouteHandler
+import pl.jwizard.jwl.util.base64decode
 import pl.jwizard.jwm.server.core.ServerCookie
 import pl.jwizard.jwm.server.core.ServerCookie.Companion.cookie
 import pl.jwizard.jwm.server.core.ServerCookie.Companion.removeCookie
+import pl.jwizard.jwm.server.core.exception.SpecifiedException
+import pl.jwizard.jwm.server.core.handler.AuthNoMfaRouteHandler
 import pl.jwizard.jwm.server.core.handler.AuthRouteHandler
 
 @Component
@@ -20,15 +23,15 @@ class SessionController(private val sessionService: SessionService) : HttpContro
 		ctx.json(resDto)
 	}
 
-	private val getCsrfToken = AuthRouteHandler { ctx, loggedUser ->
+	private val getCsrfToken = AuthNoMfaRouteHandler { ctx, loggedUser ->
 		val resDto = sessionService.updateAndGetCsrfToken(loggedUser.sessionId)
 		ctx.json(resDto)
 	}
 
 	private val deleteMySessionBasedSessionId = AuthRouteHandler { ctx, loggedUser ->
 		val sessionId = ctx.pathParam("sessionId")
-		if (!sessionService.deleteMySessionsBasedSessionId(sessionId, loggedUser)) {
-			throw NotFoundResponse()
+		if (!sessionService.deleteMySessionsBasedSessionId(base64decode(sessionId), loggedUser)) {
+			throw HttpException(SpecifiedException.SESSION_BASED_ID_NOT_FOUND)
 		}
 		ctx.status(HttpStatus.NO_CONTENT)
 	}
@@ -40,8 +43,9 @@ class SessionController(private val sessionService: SessionService) : HttpContro
 
 	private val revalidate = RouteHandler { ctx ->
 		val sessionId = ctx.cookie(ServerCookie.SID)
-		val resDto = sessionService.revalidate(sessionId)
-		if (!resDto.loggedIn) {
+		val resDto = sessionService.revalidate(sessionId?.let { base64decode(it) })
+		if (!resDto.exists) {
+			// delete cookie if selected session not exists or is expired
 			ctx.removeCookie(ServerCookie.SID)
 		}
 		ctx.json(resDto)

@@ -4,11 +4,12 @@ import org.springframework.stereotype.Component
 import pl.jwizard.jwl.property.BaseEnvironment
 import pl.jwizard.jwl.server.useragent.GeolocationProvider
 import pl.jwizard.jwl.server.useragent.UserAgentExtractor
+import pl.jwizard.jwl.util.base64decode
 import pl.jwizard.jwl.util.logger
-import pl.jwizard.jwm.server.core.auth.LoggedUser
+import pl.jwizard.jwm.server.core.auth.SessionUser
 import pl.jwizard.jwm.server.http.auth.AuthService
-import pl.jwizard.jwm.server.http.auth.dto.LoginReqDto
-import pl.jwizard.jwm.server.http.auth.dto.SessionData
+import pl.jwizard.jwm.server.http.auth.dto.*
+import pl.jwizard.jwm.server.http.dto.LoggedUserData
 import pl.jwizard.jwm.server.property.ServerProperty
 import pl.jwizard.jwm.server.service.CaptchaService
 import pl.jwizard.jwm.server.service.crypto.EncryptService
@@ -80,8 +81,44 @@ class AuthServiceImpl(
 		)
 	}
 
-	override fun logout(loggedUser: LoggedUser) {
-		sessionSupplier.deleteSession(loggedUser.sessionId)
-		log.debug("Delete session from user ID: \"{}\".", loggedUser.userId)
+	override fun checkMfa(reqDto: CheckMfaReqDto, sessionUser: SessionUser): CheckMfaResDto {
+		// TODO validate MFA token
+		sessionSupplier.setMfaValidationChecked(sessionUser.sessionId, true)
+		log.debug("Passed MFA verification for user: \"{}\".", sessionUser)
+		val loggedUserData = LoggedUserData(
+			login = sessionUser.login,
+			hasDefaultPassword = !sessionUser.initPasswordChanged,
+		)
+		return CheckMfaResDto(loggedUserData)
+	}
+
+	override fun updateDefaultPassword(
+		reqDto: UpdateDefaultPasswordReqDto,
+		ipAddress: String?,
+		sessionUser: SessionUser,
+	): Boolean {
+		val success = captchaService.performChallenge(ipAddress, reqDto.cfToken)
+		if (!success) {
+			return false
+		}
+		val userCredentials = userSupplier.getUserCredentials(sessionUser.login) ?: return false
+		if (!encryptService.validateHash(reqDto.oldPassword, userCredentials.passwordHash)) {
+			log.debug(
+				"Attempt to change init password with incorrect old password for user: \"{}\".",
+				sessionUser,
+			)
+			return false
+		}
+		userSupplier.changeInitPassword(
+			userId = sessionUser.userId,
+			newPasswordHash = encryptService.hash(reqDto.newPassword),
+		)
+		log.debug("Changed init password for user: \"{}\".", sessionUser)
+		return true
+	}
+
+	override fun logout(sessionUser: SessionUser) {
+		sessionSupplier.deleteSession(sessionUser.sessionId)
+		log.debug("Delete session from user ID: \"{}\".", sessionUser.userId)
 	}
 }
