@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { ChangeDefaultPasswordForm, DialogProvider } from '@/component';
+import { DialogProvider } from '@/component';
+import { ChangeDefaultPasswordForm } from '@/component/change-default-password';
 
 const ChangeDefaultPasswordPage: React.FC = (): React.ReactElement => (
   <DialogProvider>

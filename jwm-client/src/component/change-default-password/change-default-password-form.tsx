@@ -4,7 +4,7 @@ import { FormProvider, SubmitHandler, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import * as Yup from 'yup';
 import { useDialogContext } from '@/component';
-import { AuthCardWrapper } from '@/component/auth/auth-card-wrapper';
+import { AuthCardWrapper } from '@/component/auth-card-wrapper';
 import { ConfirmationDialog } from '@/component/dialog/confirmation-dialog';
 import { CaptchaChallenge } from '@/component/input/captcha-challenge';
 import { ToggledPasswordFormInput } from '@/component/input/toggled-password-form-input';

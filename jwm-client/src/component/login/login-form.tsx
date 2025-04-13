@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useEffect } from 'react';
 import { FormProvider, SubmitHandler, useForm } from 'react-hook-form';
 import * as Yup from 'yup';
-import { AuthCardWrapper } from '@/component/auth/auth-card-wrapper';
+import { AuthCardWrapper } from '@/component/auth-card-wrapper';
 import { CaptchaChallenge } from '@/component/input/captcha-challenge';
 import { FormTextInput } from '@/component/input/form-text-input';
 import { ToggledPasswordFormInput } from '@/component/input/toggled-password-form-input';
