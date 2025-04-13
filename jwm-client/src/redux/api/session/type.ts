@@ -1,5 +1,9 @@
+import { LoggedUser } from '@/redux/api/type';
+
 export type RevalidateResDto = {
-  loggedIn: boolean;
+  exists: boolean;
+  loggedUser: LoggedUser | null;
+  requireMfa: boolean;
   expired: boolean;
 };
 

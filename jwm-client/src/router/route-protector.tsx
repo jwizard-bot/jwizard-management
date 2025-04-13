@@ -1,26 +1,26 @@
 import * as React from 'react';
 import { Navigate } from 'react-router';
 import { SuspenseFallback } from '@/component';
-import { useMainSlice } from '@/redux/slice/main-slice';
+import { MainSliceInitialState, useMainSlice } from '@/redux/store/main-slice';
 
 type Props = {
   redirectTo?: string;
-  transformFc?: (loggedIn: boolean) => boolean;
+  protectCallback?: (mainState: MainSliceInitialState) => boolean;
   PageComponent: React.ComponentType;
 };
 
 const RouteProtector: React.FC<Props> = ({
   redirectTo = '/auth/login',
-  transformFc = loggedIn => loggedIn,
+  protectCallback = ({ loggedUser }) => !!loggedUser,
   PageComponent,
 }) => {
-  const { loggedIn, initialized } = useMainSlice();
+  const mainState = useMainSlice();
 
-  if (!initialized) {
+  if (!mainState.initialized) {
     return <SuspenseFallback />;
   }
 
-  if (transformFc(loggedIn)) {
+  if (protectCallback(mainState)) {
     return <PageComponent />;
   }
 

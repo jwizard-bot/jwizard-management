@@ -9,6 +9,7 @@ import { RouteProtector } from '@/router/route-protector';
 
 const LoginPage = lazy(() => import('@/page/login-page'));
 const RootPage = lazy(() => import('@/page/root-page'));
+const ChangeDefaultPasswordPage = lazy(() => import('@/page/change-default-password-page'));
 
 const router = createBrowserRouter([
   {
@@ -19,12 +20,22 @@ const router = createBrowserRouter([
         path: '/auth',
         element: (
           <RouteProtector
-            transformFc={loggedIn => !loggedIn}
+            protectCallback={({ loggedUser }) => !loggedUser}
             redirectTo="/"
             PageComponent={UnprotectedLayout}
           />
         ),
         children: [{ path: 'login', element: <LoginPage /> }],
+      },
+      {
+        path: '/change-default-password',
+        element: (
+          <RouteProtector
+            protectCallback={({ loggedUser }) => !!loggedUser?.hasDefaultPassword}
+            PageComponent={UnprotectedLayout}
+          />
+        ),
+        children: [{ index: true, element: <ChangeDefaultPasswordPage /> }],
       },
       {
         path: '/',

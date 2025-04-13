@@ -1,10 +1,10 @@
 import * as React from 'react';
 import { Provider } from 'react-redux';
 import { config } from '@/config';
-import { authApiSlice } from '@/redux/api/auth/slice.ts';
-import { sessionApiSlice } from '@/redux/api/session/slice.ts';
+import { authApiSlice } from '@/redux/api/auth/slice';
+import { sessionApiSlice } from '@/redux/api/session/slice';
 import { listenerMiddleware } from '@/redux/listener-middleware';
-import { mainSlice } from '@/redux/store/main-slice.ts';
+import { mainSlice } from '@/redux/store/main-slice';
 import { configureStore } from '@reduxjs/toolkit';
 
 const store = configureStore({
