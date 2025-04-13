@@ -17,9 +17,6 @@ tasks {
   register("copyFrontendToBackend", Copy::class) {
     dependsOn("yarnBuild")
 
-    // copy resources only for production server
-    onlyIf { project.hasProperty("copyResources") }
-
     from("$projectDir/target/dist")
     into("$rootDir/jwm-server/build/resources/main/static/.")
   }

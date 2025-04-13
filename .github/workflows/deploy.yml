@@ -47,7 +47,7 @@ jobs:
       - name: Package to JAR
         run: |
           ./gradlew clean --no-daemon
-          ./gradlew shadowJar -PcopyResources --no-daemon
+          ./gradlew shadowJar -PbuildFrontend --no-daemon
         env:
           JWIZARD_VERSION: ${{ steps.version.outputs.sha_short }}
           VITE_BUILD_VERSION: '${{ steps.version.outputs.sha_short }}'

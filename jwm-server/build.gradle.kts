@@ -45,7 +45,10 @@ dependencies {
 
 tasks {
 	processResources {
-		dependsOn(":jwm-client:copyFrontendToBackend")
+		if (project.hasProperty("buildFrontend")) {
+			// build frontend only when flag -PbuildFrontend was passed
+			dependsOn(":jwm-client:copyFrontendToBackend")
+		}
 	}
 
 	jar {
