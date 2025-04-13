@@ -11,6 +11,7 @@ import pl.jwizard.jwl.http.SecureHttpClientService
 import pl.jwizard.jwl.ioc.IoCKtContextFactory
 import pl.jwizard.jwl.property.BaseEnvironment
 import pl.jwizard.jwl.server.HttpServer
+import pl.jwizard.jwl.server.exception.HttpExceptionAdvisor
 import pl.jwizard.jwl.server.exception.UnspecifiedExceptionAdvisor
 import pl.jwizard.jwl.server.useragent.GeolocationProvider
 import pl.jwizard.jwl.server.useragent.UserAgentExtractor
@@ -42,6 +43,9 @@ internal class AppConfiguration {
 
 	@Bean
 	fun unspecifiedExceptionAdvisor() = UnspecifiedExceptionAdvisor()
+
+	@Bean
+	fun httpExceptionAdvisor() = HttpExceptionAdvisor()
 
 	@Bean
 	fun userAgentExtractor(environment: BaseEnvironment) = UserAgentExtractor(environment)

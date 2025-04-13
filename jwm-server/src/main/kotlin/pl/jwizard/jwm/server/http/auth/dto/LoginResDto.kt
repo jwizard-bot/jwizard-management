@@ -1,6 +1,8 @@
 package pl.jwizard.jwm.server.http.auth.dto
 
+import pl.jwizard.jwm.server.http.dto.LoggedUserData
+
 data class LoginResDto(
-	val authenticated: Boolean,
-	val userData: LoggedUserData?,
+	val requireMfa: Boolean,
+	val loggedUser: LoggedUserData,
 )
