@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useLogoutMutation } from '@/redux/api/slice/auth-api-slice';
+import { useLogoutMutation } from '@/redux/api/auth/slice';
 import { Button } from '@mui/material';
 
 const RootPage: React.FC = (): React.ReactElement => {

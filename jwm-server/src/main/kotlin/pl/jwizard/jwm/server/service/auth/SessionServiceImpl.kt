@@ -37,10 +37,10 @@ class SessionServiceImpl(
 	private val csrfTokenLength = environment
 		.getProperty<Int>(ServerProperty.SERVER_AUTH_SESSION_CSRF_TOKEN_LENGTH)
 
-	override fun mySessions(loggedUser: LoggedUser): SessionsDataResDto {
-		val sessions = sessionSupplier.getMySessions(loggedUser.userId)
+	override fun mySessions(sessionUser: SessionUser): SessionsDataResDto {
+		val sessions = sessionSupplier.getMySessions(sessionUser.userId)
 		val currentSession = sessions
-			.find { base64encode(it.sessionId) == loggedUser.sessionId }
+			.find { it.sessionId.contentEquals(sessionUser.sessionId) }
 			?: throw UnauthorizedResponse()
 
 		val now = LocalDateTime.now(ZoneOffset.UTC)
@@ -60,7 +60,7 @@ class SessionServiceImpl(
 			current = objectMapper(currentSession),
 			sessions = sessions
 				.sortedBy(SessionDataRow::lastLoginUtc)
-				.filter { base64encode(it.sessionId) != loggedUser.sessionId }
+				.filter { it.sessionId.contentEquals(sessionUser.sessionId) }
 				.map(objectMapper),
 			geolocationProviderName = name,
 			geolocationProviderWebsiteUrl = url,
@@ -68,11 +68,11 @@ class SessionServiceImpl(
 	}
 
 	override fun deleteMySessionsBasedSessionId(
-		toDeleteSessionId: String,
-		loggedUser: LoggedUser
+		toDeleteSessionId: ByteArray,
+		sessionUser: SessionUser,
 	): Boolean {
 		// we cannot delete current session
-		if (toDeleteSessionId.contentEquals(loggedUser.sessionId)) {
+		if (toDeleteSessionId.contentEquals(sessionUser.sessionId)) {
 			return false
 		}
 		val expiredAtUtc = sessionSupplier.getSessionExpirationTime(toDeleteSessionId) ?: return false
@@ -85,33 +85,38 @@ class SessionServiceImpl(
 		return false
 	}
 
-	override fun deleteAllMySessionsWithoutCurrentSession(loggedUser: LoggedUser) {
-		val userId = loggedUser.userId
-		val deleted = sessionSupplier.deleteAllSessions(userId, loggedUser.sessionId)
+	override fun deleteAllMySessionsWithoutCurrentSession(sessionUser: SessionUser) {
+		val userId = sessionUser.userId
+		val deleted = sessionSupplier.deleteAllSessions(userId, sessionUser.sessionId)
 		log.debug("Delete: {} user sessions for user ID: \"{}\".", deleted, userId)
 	}
 
-	override fun updateAndGetCsrfToken(sessionId: String): CsrfTokenResDto {
+	override fun updateAndGetCsrfToken(sessionId: ByteArray): CsrfTokenResDto {
 		val csrfToken = encryptService.encrypt(secureRndGeneratorService.generate(csrfTokenLength))
 		sessionSupplier.updateCsrfToken(sessionId, csrfToken)
 		return CsrfTokenResDto(csrfToken, ApiHttpHeader.X_CSRF_TOKEN.headerName)
 	}
 
-	override fun revalidate(sessionId: String?): RevalidateStateResDto {
+	override fun revalidate(sessionId: ByteArray?): RevalidateStateResDto {
 		if (sessionId == null) {
-			return RevalidateStateResDto(false, false, false)
+			return RevalidateStateResDto(exists = false, null, expired = false, requireMfa = false)
 		}
-		var loggedIn = false
-		var expired = false
-		var mfaPassed: Boolean? = null
 		val revalidateState = sessionSupplier.getSessionRevalidateState(sessionId)
-		if (revalidateState != null) {
-			val expiredAtUtc = revalidateState.expiredAtUtc
-			val now = LocalDateTime.now(ZoneOffset.UTC)
-			loggedIn = expiredAtUtc.isAfter(now) || expiredAtUtc.isEqual(now)
-			expired = expiredAtUtc.isBefore(now)
-			mfaPassed = revalidateState.mfaPassed
-		}
-		return RevalidateStateResDto(loggedIn, expired, mfaPassed)
+			?: return RevalidateStateResDto(exists = false, null, expired = false, requireMfa = false)
+
+		val (login, initPasswordChanged, expiredAtUtc, mfaPassed) = revalidateState
+		val now = LocalDateTime.now(ZoneOffset.UTC)
+		val isExpired = expiredAtUtc.isBefore(now)
+
+		return RevalidateStateResDto(
+			exists = !isExpired,
+			loggedUser = if (!isExpired && mfaPassed) {
+				LoggedUserData(login, !initPasswordChanged)
+			} else {
+				null
+			},
+			expired = isExpired,
+			requireMfa = !mfaPassed,
+		)
 	}
 }

@@ -6,15 +6,15 @@ import io.javalin.security.RouteRole
 import pl.jwizard.jwl.property.BaseEnvironment
 import pl.jwizard.jwl.server.filter.RoleFilterBase
 import pl.jwizard.jwl.server.setAttribute
+import pl.jwizard.jwl.util.base64decode
 import pl.jwizard.jwl.util.logger
 import pl.jwizard.jwm.server.core.ApiServerAttribute
 import pl.jwizard.jwm.server.core.ServerCookie
 import pl.jwizard.jwm.server.core.ServerCookie.Companion.cookie
 import pl.jwizard.jwm.server.core.ServerCookie.Companion.removeCookie
-import pl.jwizard.jwm.server.core.auth.LoggedUser
 import pl.jwizard.jwm.server.core.auth.Role
+import pl.jwizard.jwm.server.core.auth.SessionUser
 import pl.jwizard.jwm.server.core.spi.SessionFilterService
-import pl.jwizard.jwm.server.core.spi.SessionUser
 import pl.jwizard.jwm.server.property.ServerProperty
 import java.time.LocalDateTime
 import java.time.ZoneOffset
@@ -36,7 +36,8 @@ abstract class AuthenticationFilterBase(
 
 	final override fun roleFilter(ctx: Context) {
 		val sessionId = ctx.cookie(ServerCookie.SID) ?: throw UnauthorizedResponse()
-		val session = sessionFilterService.getUserSession(sessionId)
+		val decodedSessionId = base64decode(sessionId)
+		val session = sessionFilterService.getUserSession(decodedSessionId)
 		if (session == null) {
 			ctx.removeCookie(ServerCookie.SID)
 			log.debug("Not found active session with session ID: \"{}\". Delete cookie.", sessionId)
@@ -45,7 +46,7 @@ abstract class AuthenticationFilterBase(
 		val now = LocalDateTime.now(ZoneOffset.UTC)
 		// if session expired, remove it from db and return 401
 		if (session.expiredAtUtc.isBefore(now)) {
-			sessionFilterService.deleteExpiredSession(sessionId, session.userId)
+			sessionFilterService.deleteExpiredSession(decodedSessionId, session.userId)
 			ctx.removeCookie(ServerCookie.SID)
 			log.debug("Session with session ID: \"{}\" is expired. Delete cookie.", sessionId)
 			throw UnauthorizedResponse()
@@ -53,7 +54,7 @@ abstract class AuthenticationFilterBase(
 		if (!onAdditionalCheck(session)) {
 			throw UnauthorizedResponse()
 		}
-		val sessionExpiredAt = sessionFilterService.updateSessionTime(sessionId, now)
+		val sessionExpiredAt = sessionFilterService.updateSessionTime(decodedSessionId, now)
 		val updatedCookie = ServerCookie.SID.toCookieInstance(
 			value = sessionId,
 			ttl = sessionExpiredAt,
@@ -61,8 +62,7 @@ abstract class AuthenticationFilterBase(
 			httpOnly = true,
 			secure = true,
 		)
-		val loggedUser = LoggedUser(sessionId, session.userId, session.csrfToken)
-		ctx.setAttribute(ApiServerAttribute.AUTHENTICATED_USER, loggedUser)
+		ctx.setAttribute(ApiServerAttribute.AUTHENTICATED_USER, session)
 		ctx.cookie(updatedCookie)
 	}
 

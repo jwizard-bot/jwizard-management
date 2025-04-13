@@ -59,7 +59,7 @@ class AuthServiceImpl(
 
 		// persist new user session
 		sessionSupplier.saveUserSession(
-			sessionId,
+			sessionId = base64decode(sessionId),
 			userId = userCredentials.userId,
 			mfaEnabled = userCredentials.mfaEnabled,
 			expiredAtUtc = expiredAt,

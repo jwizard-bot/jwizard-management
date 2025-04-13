@@ -1,11 +1,12 @@
 package pl.jwizard.jwm.server.core.spi
 
+import pl.jwizard.jwm.server.core.auth.SessionUser
 import java.time.LocalDateTime
 
 interface SessionFilterService {
-	fun getUserSession(sessionId: String): SessionUser?
+	fun getUserSession(sessionId: ByteArray): SessionUser?
 
-	fun updateSessionTime(sessionId: String, now: LocalDateTime): Int
+	fun updateSessionTime(sessionId: ByteArray, now: LocalDateTime): Int
 
-	fun deleteExpiredSession(sessionId: String, userId: Long)
+	fun deleteExpiredSession(sessionId: ByteArray, userId: Long)
 }

@@ -11,8 +11,8 @@ import pl.jwizard.jwl.util.logger
 import pl.jwizard.jwm.server.core.ApiHttpHeader
 import pl.jwizard.jwm.server.core.ApiHttpHeader.Companion.header
 import pl.jwizard.jwm.server.core.ApiServerAttribute
-import pl.jwizard.jwm.server.core.auth.LoggedUser
 import pl.jwizard.jwm.server.core.auth.Role
+import pl.jwizard.jwm.server.core.auth.SessionUser
 
 @Component
 class AntiCsrfProtectionFilter : RoleFilterBase() {
@@ -24,7 +24,7 @@ class AntiCsrfProtectionFilter : RoleFilterBase() {
 	override val runIndex = 2
 
 	override fun roleFilter(ctx: Context) {
-		val session = ctx.getAttribute<LoggedUser>(ApiServerAttribute.AUTHENTICATED_USER)
+		val session = ctx.getAttribute<SessionUser>(ApiServerAttribute.AUTHENTICATED_USER)
 			?: throw UnauthorizedResponse()
 		if (session.csrfToken != ctx.header(ApiHttpHeader.X_CSRF_TOKEN)) {
 			log.debug("Passed csrf token is not equal to persisted csrf token.")

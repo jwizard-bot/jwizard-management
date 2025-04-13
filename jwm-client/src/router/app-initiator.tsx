@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { SuspenseFallback } from '@/component';
-import { useRevalidateSessionQuery } from '@/redux/api/slice/session-api-slice';
+import { useRevalidateSessionQuery } from '@/redux/api/session/slice';
 
 const AppInitiator: React.FC = (): React.ReactElement | null => {
   const { isLoading } = useRevalidateSessionQuery();

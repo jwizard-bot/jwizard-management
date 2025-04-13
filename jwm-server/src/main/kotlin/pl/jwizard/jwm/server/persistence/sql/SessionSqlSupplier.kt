@@ -3,8 +3,7 @@ package pl.jwizard.jwm.server.persistence.sql
 import org.springframework.stereotype.Component
 import pl.jwizard.jwl.persistence.sql.JdbiQuery
 import pl.jwizard.jwl.persistence.sql.SqlColumn
-import pl.jwizard.jwl.util.base64decode
-import pl.jwizard.jwm.server.core.spi.SessionUser
+import pl.jwizard.jwm.server.core.auth.SessionUser
 import pl.jwizard.jwm.server.service.spi.SessionSupplier
 import pl.jwizard.jwm.server.service.spi.dto.SessionDataRow
 import pl.jwizard.jwm.server.service.spi.dto.SessionRevalidateState
@@ -14,21 +13,22 @@ import java.time.ZoneOffset
 
 @Component
 class SessionSqlSupplier(private val jdbiQuery: JdbiQuery) : SessionSupplier {
-	override fun getSession(sessionId: String): SessionUser? {
+	override fun getSession(sessionId: ByteArray): SessionUser? {
 		val sql = """
-			SELECT csrf_token, expired_at_utc, user_id, is_admin, mfa_passed
+			SELECT session_id, login, csrf_token, expired_at_utc, user_id, is_admin, mfa_passed,
+			init_password_changed, IF(ISNULL(mfa_secret), false, true) mfa_enabled
 			FROM management_user_sessions mus
 			INNER JOIN management_users mu ON mus.user_id = mu.id
 			WHERE session_id = ? AND expired_at_utc > ?
 		"""
 		val now = LocalDateTime.now(ZoneOffset.UTC)
-		return jdbiQuery.queryForNullableObject(sql, SessionUser::class, base64decode(sessionId), now)
+		return jdbiQuery.queryForNullableObject(sql, SessionUser::class, sessionId, now)
 	}
 
 	override fun getMySessions(userId: Long): List<SessionDataRow> {
 		val sql = """
-			SELECT session_id, login, ISNULL(mfa_token) mfa_enabled, last_login_utc, device_system,
-			device_mobile, geolocation_info
+			SELECT session_id, login, IF(ISNULL(mfa_secret), false, true) mfa_enabled, last_login_utc,
+			device_system, device_mobile, geolocation_info
 			FROM management_user_sessions mus
 			INNER JOIN management_users mu ON mus.user_id = mu.id
 			WHERE expired_at_utc > ? AND user_id = ?
@@ -37,20 +37,26 @@ class SessionSqlSupplier(private val jdbiQuery: JdbiQuery) : SessionSupplier {
 		return jdbiQuery.queryForList(sql, SessionDataRow::class, now, userId)
 	}
 
-	override fun getSessionExpirationTime(sessionId: String) = jdbiQuery.queryForNullableObject(
+	override fun getSessionExpirationTime(sessionId: ByteArray) = jdbiQuery.queryForNullableObject(
 		sql = "SELECT expired_at_utc FROM management_user_sessions WHERE session_id = ?",
 		type = LocalDateTime::class,
-		base64decode(sessionId),
+		sessionId,
 	)
 
-	override fun getSessionRevalidateState(sessionId: String) = jdbiQuery.queryForNullableObject(
-		sql = "SELECT expired_at_utc, mfa_passed FROM management_user_sessions WHERE session_id = ?",
+	override fun getSessionRevalidateState(sessionId: ByteArray) = jdbiQuery.queryForNullableObject(
+		sql = """
+			SELECT login, init_password_changed, expired_at_utc,
+			IF(ISNULL(mfa_passed), true, mfa_passed) mfa_passed
+			FROM management_user_sessions mus
+			INNER JOIN management_users mu ON mus.user_id = mu.id
+			WHERE session_id = ?
+		""",
 		type = SessionRevalidateState::class,
-		base64decode(sessionId),
+		sessionId,
 	)
 
 	override fun saveUserSession(
-		sessionId: String,
+		sessionId: ByteArray,
 		userId: Long,
 		mfaEnabled: Boolean,
 		expiredAtUtc: LocalDateTime,
@@ -63,7 +69,7 @@ class SessionSqlSupplier(private val jdbiQuery: JdbiQuery) : SessionSupplier {
 		val columns = createCommonSessionColumnsMap(
 			expiredAtUtc, lastLoginUtc, deviceSystem, deviceMobile, geolocationInfo, csrfToken,
 		)
-		columns += "session_id" to SqlColumn(base64decode(sessionId), JDBCType.BINARY)
+		columns += "session_id" to SqlColumn(sessionId, JDBCType.BINARY)
 		columns += "user_id" to SqlColumn(userId, JDBCType.BIGINT)
 		if (mfaEnabled) {
 			columns += "mfa_passed" to SqlColumn(false, JDBCType.BOOLEAN)
@@ -72,7 +78,7 @@ class SessionSqlSupplier(private val jdbiQuery: JdbiQuery) : SessionSupplier {
 	}
 
 	override fun afterLoginUpdateSession(
-		sessionId: String,
+		sessionId: ByteArray,
 		expiredAtUtc: LocalDateTime,
 		lastLoginUtc: LocalDateTime,
 		deviceSystem: String?,
@@ -86,23 +92,23 @@ class SessionSqlSupplier(private val jdbiQuery: JdbiQuery) : SessionSupplier {
 		return jdbiQuery.updateSingle(
 			tableName = "management_user_sessions",
 			columns = columns.toMap(),
-			findColumn = "session_id" to SqlColumn(base64decode(sessionId), JDBCType.BINARY)
+			findColumn = "session_id" to SqlColumn(sessionId, JDBCType.BINARY)
 		)
 	}
 
 	override fun updateCsrfToken(
-		sessionId: String,
+		sessionId: ByteArray,
 		encryptedCsrfToken: String,
 	) = jdbiQuery.updateSingle(
 		tableName = "management_user_sessions",
 		columns = mapOf(
 			"csrf_token" to SqlColumn(encryptedCsrfToken, JDBCType.VARCHAR),
 		),
-		findColumn = "session_id" to SqlColumn(base64decode(sessionId), JDBCType.BINARY)
+		findColumn = "session_id" to SqlColumn(sessionId, JDBCType.BINARY)
 	)
 
 	override fun updateSessionTime(
-		sessionId: String,
+		sessionId: ByteArray,
 		sessionExpiredAtUtc: LocalDateTime,
 	) = jdbiQuery.updateSingle(
 		tableName = "management_user_sessions",
@@ -112,14 +118,14 @@ class SessionSqlSupplier(private val jdbiQuery: JdbiQuery) : SessionSupplier {
 		findColumn = "session_id" to SqlColumn(base64decode(sessionId), JDBCType.BINARY),
 	)
 
-	override fun deleteSession(sessionId: String): Int {
+	override fun deleteSession(sessionId: ByteArray): Int {
 		val sql = "DELETE FROM management_user_sessions WHERE session_id = ?"
-		return jdbiQuery.update(sql, base64decode(sessionId))
+		return jdbiQuery.update(sql, sessionId)
 	}
 
-	override fun deleteAllSessions(userId: Long, currentSessionId: String): Int {
+	override fun deleteAllSessions(userId: Long, currentSessionId: ByteArray): Int {
 		val sql = "DELETE FROM management_user_sessions WHERE user_id = ? AND session_id != ?"
-		return jdbiQuery.update(sql, userId, base64decode(currentSessionId))
+		return jdbiQuery.update(sql, userId, currentSessionId)
 	}
 
 	private fun createCommonSessionColumnsMap(

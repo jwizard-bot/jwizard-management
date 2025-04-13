@@ -3,8 +3,8 @@ package pl.jwizard.jwm.server.core.filter
 import org.springframework.stereotype.Component
 import pl.jwizard.jwl.property.BaseEnvironment
 import pl.jwizard.jwm.server.core.auth.Role
+import pl.jwizard.jwm.server.core.auth.SessionUser
 import pl.jwizard.jwm.server.core.spi.SessionFilterService
-import pl.jwizard.jwm.server.core.spi.SessionUser
 
 @Component
 class AuthenticationWithMfaFilter(
