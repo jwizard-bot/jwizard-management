@@ -1,9 +1,13 @@
 package pl.jwizard.jwm.server.core.auth
 
-import io.javalin.security.RouteRole
+import pl.jwizard.jwl.server.filter.FilterRole
 
-enum class Role : RouteRole {
+enum class Role : FilterRole {
 	CSRF_PROTECTED,
 	AUTHENTICATED,
 	MFA_AUTHENTICATED,
+	;
+
+	override val id
+		get() = name
 }

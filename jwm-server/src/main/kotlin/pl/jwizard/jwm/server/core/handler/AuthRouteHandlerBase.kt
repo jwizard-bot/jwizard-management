@@ -1,7 +1,7 @@
 package pl.jwizard.jwm.server.core.handler
 
 import io.javalin.http.Context
-import io.javalin.security.RouteRole
+import pl.jwizard.jwl.server.filter.FilterRole
 import pl.jwizard.jwl.server.getAttribute
 import pl.jwizard.jwl.server.route.RouteMethod
 import pl.jwizard.jwl.server.route.handler.RouteDataHandler
@@ -11,7 +11,7 @@ import pl.jwizard.jwm.server.core.auth.SessionUser
 
 abstract class AuthRouteHandlerBase(
 	override val callback: (Context, SessionUser) -> Unit,
-	vararg roles: RouteRole,
+	vararg roles: FilterRole,
 ) : RouteDataHandler<SessionUser>() {
 	final override val withRoles = mapOf(
 		forAllRouteMethods(Role.AUTHENTICATED),

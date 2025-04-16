@@ -2,8 +2,8 @@ package pl.jwizard.jwm.server.core.filter
 
 import io.javalin.http.Context
 import io.javalin.http.UnauthorizedResponse
-import io.javalin.security.RouteRole
 import pl.jwizard.jwl.property.BaseEnvironment
+import pl.jwizard.jwl.server.filter.FilterRole
 import pl.jwizard.jwl.server.filter.RoleFilterBase
 import pl.jwizard.jwl.server.setAttribute
 import pl.jwizard.jwl.util.base64decode
@@ -28,7 +28,7 @@ abstract class AuthenticationFilterBase(
 		private val log = logger<AuthenticationFilterBase>()
 	}
 
-	override val roles = arrayOf<RouteRole>(Role.AUTHENTICATED, *roles)
+	override val roles = arrayOf<FilterRole>(Role.AUTHENTICATED, *roles)
 	override val runIndex = 1
 
 	private val cookieDomain = environment
