@@ -14,10 +14,6 @@ export type LoginResDto = {
   loggedUser: LoggedUser | null;
 };
 
-export type ValidateMfaReqDto = {
-  mfaCode: string;
-};
-
 export type ValidateMfaResDto = {
   loggedUser: LoggedUser | null;
 };

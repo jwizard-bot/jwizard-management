@@ -14,7 +14,6 @@ import pl.jwizard.jwm.server.core.ServerCookie.Companion.removeCookie
 import pl.jwizard.jwm.server.core.exception.SpecifiedException
 import pl.jwizard.jwm.server.core.handler.AuthNoMfaRouteHandler
 import pl.jwizard.jwm.server.core.handler.AuthRouteHandler
-import pl.jwizard.jwm.server.http.auth.dto.CheckMfaReqDto
 import pl.jwizard.jwm.server.http.auth.dto.LoginReqDto
 import pl.jwizard.jwm.server.http.auth.dto.LoginResDto
 import pl.jwizard.jwm.server.http.auth.dto.UpdateDefaultPasswordReqDto
@@ -47,9 +46,16 @@ class AuthController(private val authService: AuthService) : HttpControllerBase 
 	}
 
 	private val checkMfa = AuthNoMfaRouteHandler { ctx, sessionUser ->
-		val reqDto = ctx.bodyAsClass<CheckMfaReqDto>()
-		val resDto = authService.checkMfa(reqDto, sessionUser)
+		val code = ctx.pathParam("code")
+		val resDto = authService.checkMfa(code, sessionUser)
 			?: throw HttpException(SpecifiedException.INCORRECT_MFA_TOKEN)
+		ctx.json(resDto)
+	}
+
+	private val checkRecoveryMfa = AuthNoMfaRouteHandler { ctx, sessionUser ->
+		val code = ctx.pathParam("code")
+		val resDto = authService.checkRecoveryMfa(code, sessionUser)
+			?: throw HttpException(SpecifiedException.INCORRECT_RECOVERY_CODE)
 		ctx.json(resDto)
 	}
 
@@ -76,7 +82,8 @@ class AuthController(private val authService: AuthService) : HttpControllerBase 
 
 	override val routes = RouteDefinitionBuilder()
 		.post("/login", login)
-		.patch("/mfa", checkMfa)
+		.patch("/mfa/<code>", checkMfa)
+		.patch("/mfa/recovery/<code>", checkRecoveryMfa)
 		.delete("/mfa/cancel", cancelMfa)
 		.patch("/password", updateInitPassword)
 		.delete("/logout", logout)

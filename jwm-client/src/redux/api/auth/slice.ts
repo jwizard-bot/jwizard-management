@@ -3,7 +3,6 @@ import {
   ChangeDefaultPasswordReqDto,
   LoginReqDto,
   LoginResDto,
-  ValidateMfaReqDto,
   ValidateMfaResDto,
 } from '@/redux/api/auth/type';
 import { baseQuery } from '@/redux/api/base-query';
@@ -15,6 +14,7 @@ import {
   setLoggedUser,
   setRequireMfa,
 } from '@/redux/store/main-slice';
+import { isAnyOf } from '@reduxjs/toolkit';
 import { createApi } from '@reduxjs/toolkit/query/react';
 
 const authApiSlice = createApi({
@@ -28,11 +28,16 @@ const authApiSlice = createApi({
         body: reqDto,
       }),
     }),
-    validateMfa: builder.mutation<ValidateMfaResDto, ValidateMfaReqDto>({
-      query: reqDto => ({
-        url: 'v1/auth/mfa',
+    validateMfa: builder.mutation<ValidateMfaResDto, string>({
+      query: code => ({
+        url: `v1/auth/mfa/${code}`,
         method: 'PATCH',
-        body: reqDto,
+      }),
+    }),
+    validateRecoveryMfa: builder.mutation<ValidateMfaResDto, string>({
+      query: code => ({
+        url: `v1/auth/mfa/recovery/${code}`,
+        method: 'PATCH',
       }),
     }),
     cancelMfa: builder.mutation<void, void>({
@@ -71,9 +76,13 @@ listenerMiddleware.startListening({
 });
 
 listenerMiddleware.startListening({
-  matcher: authApiSlice.endpoints.validateMfa.matchFulfilled,
+  matcher: isAnyOf(
+    authApiSlice.endpoints.validateMfa.matchFulfilled,
+    authApiSlice.endpoints.validateRecoveryMfa.matchFulfilled
+  ),
   effect: async ({ payload }, { dispatch }) => {
-    dispatch(setLoggedUser(payload.loggedUser));
+    const result = payload as ValidateMfaResDto;
+    dispatch(setLoggedUser(result.loggedUser));
     enqueueSnackbar({ message: 'Successfully logged on account.', variant: 'success' });
   },
 });
@@ -106,6 +115,7 @@ listenerMiddleware.startListening({
 export const {
   useLoginMutation,
   useValidateMfaMutation,
+  useValidateRecoveryMfaMutation,
   useCancelMfaMutation,
   useChangeDefaultPasswordMutation,
   useLogoutMutation,

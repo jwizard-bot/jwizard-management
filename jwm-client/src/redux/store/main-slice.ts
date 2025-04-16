@@ -7,6 +7,7 @@ import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 type MainSliceInitialState = {
   loggedUser: LoggedUser | null;
   requireMfa: boolean;
+  mfaRecoveryMode: boolean;
   initialized: boolean;
   csrf: CsrfResDto | null;
 };
@@ -14,6 +15,7 @@ type MainSliceInitialState = {
 const initialState: MainSliceInitialState = {
   loggedUser: null,
   requireMfa: false,
+  mfaRecoveryMode: false,
   initialized: false,
   csrf: null,
 };
@@ -27,6 +29,9 @@ const mainSlice = createSlice({
     },
     setRequireMfa: (state, action: PayloadAction<boolean>) => {
       state.requireMfa = action.payload;
+    },
+    setMfaRecoveryMode: (state, action: PayloadAction<boolean>) => {
+      state.mfaRecoveryMode = action.payload;
     },
     setLoggedUser: (state, action: PayloadAction<LoggedUser | null>) => {
       state.loggedUser = action.payload;
@@ -44,7 +49,13 @@ const mainSlice = createSlice({
 
 const useMainSlice = () => useSelector((state: RootState) => state[mainSlice.reducerPath]);
 
-export const { setInitialized, setRequireMfa, setLoggedUser, setDefaultPasswordState, setCsrf } =
-  mainSlice.actions;
+export const {
+  setInitialized,
+  setRequireMfa,
+  setMfaRecoveryMode,
+  setLoggedUser,
+  setDefaultPasswordState,
+  setCsrf,
+} = mainSlice.actions;
 
 export { type MainSliceInitialState, mainSlice, useMainSlice };

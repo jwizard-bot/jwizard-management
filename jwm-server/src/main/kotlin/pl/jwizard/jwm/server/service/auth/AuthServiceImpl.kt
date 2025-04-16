@@ -8,7 +8,10 @@ import pl.jwizard.jwl.util.base64decode
 import pl.jwizard.jwl.util.logger
 import pl.jwizard.jwm.server.core.auth.SessionUser
 import pl.jwizard.jwm.server.http.auth.AuthService
-import pl.jwizard.jwm.server.http.auth.dto.*
+import pl.jwizard.jwm.server.http.auth.dto.CheckMfaResDto
+import pl.jwizard.jwm.server.http.auth.dto.LoginReqDto
+import pl.jwizard.jwm.server.http.auth.dto.SessionData
+import pl.jwizard.jwm.server.http.auth.dto.UpdateDefaultPasswordReqDto
 import pl.jwizard.jwm.server.http.dto.LoggedUserData
 import pl.jwizard.jwm.server.property.ServerProperty
 import pl.jwizard.jwm.server.service.CaptchaService
@@ -81,15 +84,18 @@ class AuthServiceImpl(
 		)
 	}
 
-	override fun checkMfa(reqDto: CheckMfaReqDto, sessionUser: SessionUser): CheckMfaResDto {
+	override fun checkRecoveryMfa(code: String, sessionUser: SessionUser): CheckMfaResDto {
+		// TODO: check recovery code and set as used in DB
+		sessionSupplier.setMfaValidationChecked(sessionUser.sessionId, true)
+		log.debug("Passed MFA recovery code for user: \"{}\".", sessionUser)
+		return fromSessionUserToMfaResDto(sessionUser)
+	}
+
+	override fun checkMfa(code: String, sessionUser: SessionUser): CheckMfaResDto {
 		// TODO validate MFA token
 		sessionSupplier.setMfaValidationChecked(sessionUser.sessionId, true)
 		log.debug("Passed MFA verification for user: \"{}\".", sessionUser)
-		val loggedUserData = LoggedUserData(
-			login = sessionUser.login,
-			hasDefaultPassword = !sessionUser.initPasswordChanged,
-		)
-		return CheckMfaResDto(loggedUserData)
+		return fromSessionUserToMfaResDto(sessionUser)
 	}
 
 	override fun updateDefaultPassword(
@@ -120,5 +126,13 @@ class AuthServiceImpl(
 	override fun logout(sessionUser: SessionUser) {
 		sessionSupplier.deleteSession(sessionUser.sessionId)
 		log.debug("Delete session from user ID: \"{}\".", sessionUser.userId)
+	}
+
+	private fun fromSessionUserToMfaResDto(sessionUser: SessionUser): CheckMfaResDto {
+		val loggedUserData = LoggedUserData(
+			login = sessionUser.login,
+			hasDefaultPassword = !sessionUser.initPasswordChanged,
+		)
+		return CheckMfaResDto(loggedUserData)
 	}
 }

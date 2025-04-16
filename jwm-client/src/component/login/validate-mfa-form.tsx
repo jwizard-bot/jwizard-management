@@ -1,13 +1,13 @@
 import * as React from 'react';
-import { useEffect } from 'react';
-import { FormProvider, SubmitHandler, useForm } from 'react-hook-form';
+import { FormProvider, useForm } from 'react-hook-form';
 import * as Yup from 'yup';
-import { AuthCardWrapper } from '@/component/auth-card-wrapper';
-import { ToggledPasswordFormInput } from '@/component/input/toggled-password-form-input';
-import { useCancelMfaMutation, useValidateMfaMutation } from '@/redux/api/auth/slice';
-import { ValidateMfaReqDto } from '@/redux/api/auth/type';
+import { GenericMfaForm } from '@/component/login/generic-mfa-form';
+import { useValidateMfaMutation } from '@/redux/api/auth/slice';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { Box, Button } from '@mui/material';
+
+type ValidateMfaFormType = {
+  mfaCode: string;
+};
 
 const formSchema = Yup.object().shape({
   mfaCode: Yup.string().required('MFA code is required'),
@@ -15,54 +15,23 @@ const formSchema = Yup.object().shape({
 
 const ValidateMfaForm: React.FC = (): React.ReactElement => {
   const [validateMfa, { isError }] = useValidateMfaMutation();
-  const [cancelMfa] = useCancelMfaMutation();
-  const form = useForm<ValidateMfaReqDto>({ resolver: yupResolver(formSchema) });
-
-  const {
-    resetField,
-    handleSubmit,
-    formState: { isSubmitting },
-  } = form;
-
-  const onSubmit: SubmitHandler<ValidateMfaReqDto> = async data => {
-    await validateMfa(data);
-  };
-
-  const onCancel = async (): Promise<void> => {
-    await cancelMfa();
-  };
-
-  useEffect(() => {
-    if (isError) {
-      resetField('mfaCode');
-    }
-  }, [isError]);
+  const form = useForm<ValidateMfaFormType>({ resolver: yupResolver(formSchema) });
 
   return (
-    <AuthCardWrapper caption="Your acccount has MFA protection. Pass MFA token from authenticator app.">
-      <Box
-        component="form"
-        onSubmit={handleSubmit(onSubmit)}
-        gap={2}
-        display="flex"
-        flexDirection="column">
-        <FormProvider {...form}>
-          <ToggledPasswordFormInput
-            label="MFA code"
-            name="mfaCode"
-            fieldProps={{
-              variant: 'outlined',
-            }}
-          />
-        </FormProvider>
-        <Button variant="contained" fullWidth type="submit" loading={isSubmitting}>
-          Check MFA and log in
-        </Button>
-        <Button variant="outlined" fullWidth onClick={onCancel}>
-          Cancel
-        </Button>
-      </Box>
-    </AuthCardWrapper>
+    <FormProvider {...form}>
+      <GenericMfaForm
+        caption="Your acccount has MFA protection. Pass MFA token from selected MFA token source."
+        label="MFA code"
+        controlName="mfaCode"
+        isError={isError}
+        linkContent="I cannot have access to these code"
+        submitContent="Check MFA and log in"
+        mfaRecoveryMode={true}
+        onSubmitCallback={async ({ mfaCode }) => {
+          await validateMfa(mfaCode);
+        }}
+      />
+    </FormProvider>
   );
 };
 
