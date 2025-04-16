@@ -12,6 +12,9 @@ const errorMessages: Record<string, string> = {
   INTERNAL_SERVER_ERROR: 'Unknown server error.',
   // custom
   INCORRECT_USERNAME_AND_OR_PASSWORD: 'Incorrect username and/or password.',
+  INCORRECT_MFA_TOKEN: 'Incorrect MFA token.',
+  INCORRECT_RECOVERY_CODE: 'Incorrect recovery code.',
+  UNABLE_TO_CHANGE_DEFAULT_PASSWORD: 'Unable to change default password.',
   SESSION_BASED_ID_NOT_FOUND: 'Session based passed ID not found.',
 } as const;
 
