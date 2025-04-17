@@ -6,7 +6,7 @@ type Props = {
 };
 
 const SnackbarWrapper: React.FC<Props> = ({ children }): React.ReactElement => (
-  <SnackbarProvider anchorOrigin={{ vertical: 'top', horizontal: 'right' }}>
+  <SnackbarProvider anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
     {children}
   </SnackbarProvider>
 );
