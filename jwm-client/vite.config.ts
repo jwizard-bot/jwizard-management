@@ -8,6 +8,13 @@ export default defineConfig(({ mode }) => {
     plugins: [react()],
     build: {
       outDir: 'target/dist',
+      rollupOptions: {
+        output: {
+          chunkFileNames: 'assets/jw-[hash].js',
+          entryFileNames: 'assets/jw-[hash].js',
+          assetFileNames: 'assets/jw-[hash][extname]',
+        },
+      },
     },
     server: {
       // add proxy only for development (separated vite dev server)
