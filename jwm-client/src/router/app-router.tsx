@@ -62,7 +62,7 @@ const router = createBrowserRouter([
             element: (
               <LazyRouteProtector
                 redirectTo="/"
-                protectCallback={({ loggedUser }) => !loggedUser?.admin}
+                protectCallback={({ loggedUser }) => !!loggedUser?.admin}
                 PageComponent={Users}
                 Fallback={DashboardSuspenseFallback}
               />
@@ -73,7 +73,7 @@ const router = createBrowserRouter([
             element: (
               <LazyRouteProtector
                 redirectTo="/"
-                protectCallback={({ loggedUser }) => !loggedUser?.admin}
+                protectCallback={({ loggedUser }) => !!loggedUser?.admin}
                 PageComponent={UsersAdd}
                 Fallback={DashboardSuspenseFallback}
               />
