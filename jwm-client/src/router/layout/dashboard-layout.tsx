@@ -15,9 +15,9 @@ const DashboardLayout: React.FC = (): React.ReactElement => (
       <DashboardTopBar />
       <Box display="flex" width="100%">
         <DashboardSideBar sidebarWidth={260} />
-        <Box component="main" flexGrow={1}>
+        <Box component="main" flexGrow={1} display="flex" flexDirection="column" minHeight="100vh">
           <Toolbar />
-          <Box sx={{ m: { xs: 2, md: 4 } }}>
+          <Box flexGrow={1} sx={{ m: { xs: 2, md: 4 } }}>
             <Outlet />
           </Box>
           <Divider />
