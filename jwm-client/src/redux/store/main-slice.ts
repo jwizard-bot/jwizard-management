@@ -10,6 +10,7 @@ type MainSliceInitialState = {
   mfaRecoveryMode: boolean;
   initialized: boolean;
   csrf: CsrfResDto | null;
+  dashboardDrawerOpen: boolean;
 };
 
 const initialState: MainSliceInitialState = {
@@ -18,6 +19,7 @@ const initialState: MainSliceInitialState = {
   mfaRecoveryMode: false,
   initialized: false,
   csrf: null,
+  dashboardDrawerOpen: true,
 };
 
 const mainSlice = createSlice({
@@ -44,6 +46,9 @@ const mainSlice = createSlice({
     setCsrf: (state, action: PayloadAction<CsrfResDto | null>) => {
       state.csrf = action.payload;
     },
+    toggleDashboardDrawerState: state => {
+      state.dashboardDrawerOpen = !state.dashboardDrawerOpen;
+    },
   },
 });
 
@@ -56,6 +61,7 @@ export const {
   setLoggedUser,
   setDefaultPasswordState,
   setCsrf,
+  toggleDashboardDrawerState,
 } = mainSlice.actions;
 
 export { type MainSliceInitialState, mainSlice, useMainSlice };

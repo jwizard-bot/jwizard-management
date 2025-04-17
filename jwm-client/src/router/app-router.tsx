@@ -2,14 +2,20 @@ import * as React from 'react';
 import { lazy } from 'react';
 import { Navigate } from 'react-router';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
-import { ProtectedLayout } from '@/router/layout/protected-layout';
-import { UnprotectedLayout } from '@/router/layout/unprotected-layout';
 import { RootLayout } from '@/router/root-layout';
 import { RouteProtector } from '@/router/route-protector';
 
-const LoginPage = lazy(() => import('@/page/login-page'));
-const RootPage = lazy(() => import('@/page/root-page'));
-const ChangeDefaultPasswordPage = lazy(() => import('@/page/change-default-password-page'));
+const AuthFormLayout = lazy(() => import('@/router/layout/auth-form-layout'));
+const DashboardLayout = lazy(() => import('@/router/layout/dashboard-layout'));
+
+const LoginPage = lazy(() => import('@/page/auth/login'));
+const ChangeDefaultPasswordPage = lazy(() => import('@/page/change-default-password'));
+
+const DashboardPage = lazy(() => import('@/page/dashboard'));
+const UserSettings = lazy(() => import('@/page/user-settings'));
+const UserSettingsMfa = lazy(() => import('@/page/user-settings/mfa'));
+const Users = lazy(() => import('@/page/users'));
+const UsersAdd = lazy(() => import('@/page/users/add'));
 
 const router = createBrowserRouter([
   {
@@ -22,7 +28,7 @@ const router = createBrowserRouter([
           <RouteProtector
             protectCallback={({ loggedUser }) => !loggedUser}
             redirectTo="/"
-            PageComponent={UnprotectedLayout}
+            PageComponent={AuthFormLayout}
           />
         ),
         children: [{ path: 'login', element: <LoginPage /> }],
@@ -32,15 +38,33 @@ const router = createBrowserRouter([
         element: (
           <RouteProtector
             protectCallback={({ loggedUser }) => !!loggedUser?.hasDefaultPassword}
-            PageComponent={UnprotectedLayout}
+            PageComponent={AuthFormLayout}
           />
         ),
         children: [{ index: true, element: <ChangeDefaultPasswordPage /> }],
       },
       {
         path: '/',
-        element: <RouteProtector PageComponent={ProtectedLayout} />,
-        children: [{ path: '/', element: <RootPage /> }],
+        element: <RouteProtector PageComponent={DashboardLayout} />,
+        children: [
+          { index: true, element: <DashboardPage /> },
+          {
+            path: '/user-settings',
+            element: <UserSettings />,
+          },
+          {
+            path: '/user-settings/mfa',
+            element: <UserSettingsMfa />,
+          },
+          {
+            path: '/users',
+            element: <Users />,
+          },
+          {
+            path: '/users/add',
+            element: <UsersAdd />,
+          },
+        ],
       },
       { path: '*', element: <Navigate to="/" replace /> },
     ],
