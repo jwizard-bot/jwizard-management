@@ -2,15 +2,16 @@ import * as React from 'react';
 import { lazy } from 'react';
 import { Navigate } from 'react-router';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
+import { DashboardSuspenseFallback } from '@/component/suspense';
+import { LazyRoute } from '@/router/lazy-route';
 import { RootLayout } from '@/router/root-layout';
-import { RouteProtector } from '@/router/route-protector';
+import { LazyRouteProtector } from '@/router/route-protector';
 
 const AuthFormLayout = lazy(() => import('@/router/layout/auth-form-layout'));
 const DashboardLayout = lazy(() => import('@/router/layout/dashboard-layout'));
 
 const LoginPage = lazy(() => import('@/page/auth/login'));
 const ChangeDefaultPasswordPage = lazy(() => import('@/page/change-default-password'));
-
 const DashboardPage = lazy(() => import('@/page/dashboard'));
 const UserSettings = lazy(() => import('@/page/user-settings'));
 const UserSettingsMfa = lazy(() => import('@/page/user-settings/mfa'));
@@ -25,7 +26,7 @@ const router = createBrowserRouter([
       {
         path: '/auth',
         element: (
-          <RouteProtector
+          <LazyRouteProtector
             protectCallback={({ loggedUser }) => !loggedUser}
             redirectTo="/"
             PageComponent={AuthFormLayout}
@@ -36,8 +37,8 @@ const router = createBrowserRouter([
       {
         path: '/change-default-password',
         element: (
-          <RouteProtector
-            protectCallback={({ loggedUser }) => !!loggedUser?.hasDefaultPassword}
+          <LazyRouteProtector
+            protectCallback={({ loggedUser }) => !!loggedUser}
             PageComponent={AuthFormLayout}
           />
         ),
@@ -45,24 +46,38 @@ const router = createBrowserRouter([
       },
       {
         path: '/',
-        element: <RouteProtector PageComponent={DashboardLayout} />,
+        element: <LazyRouteProtector PageComponent={DashboardLayout} />,
         children: [
           { index: true, element: <DashboardPage /> },
           {
             path: '/user-settings',
-            element: <UserSettings />,
+            element: <LazyRoute Fallback={DashboardSuspenseFallback} Page={UserSettings} />,
           },
           {
             path: '/user-settings/mfa',
-            element: <UserSettingsMfa />,
+            element: <LazyRoute Fallback={DashboardSuspenseFallback} Page={UserSettingsMfa} />,
           },
           {
             path: '/users',
-            element: <Users />,
+            element: (
+              <LazyRouteProtector
+                redirectTo="/"
+                protectCallback={({ loggedUser }) => !loggedUser?.admin}
+                PageComponent={Users}
+                Fallback={DashboardSuspenseFallback}
+              />
+            ),
           },
           {
             path: '/users/add',
-            element: <UsersAdd />,
+            element: (
+              <LazyRouteProtector
+                redirectTo="/"
+                protectCallback={({ loggedUser }) => !loggedUser?.admin}
+                PageComponent={UsersAdd}
+                Fallback={DashboardSuspenseFallback}
+              />
+            ),
           },
         ],
       },

@@ -21,14 +21,19 @@ const RouteProtector: React.FC<Props> = ({
   }
 
   if (protectCallback(mainState)) {
-    return (
-      <SuspenseWrapper>
-        <PageComponent />
-      </SuspenseWrapper>
-    );
+    return <PageComponent />;
   }
 
   return <Navigate to={redirectTo} replace />;
 };
 
-export { RouteProtector };
+const LazyRouteProtector: React.FC<Props & { Fallback?: React.ComponentType }> = ({
+  Fallback,
+  ...rest
+}) => (
+  <SuspenseWrapper Fallback={Fallback}>
+    <RouteProtector {...rest} />
+  </SuspenseWrapper>
+);
+
+export { LazyRouteProtector };
