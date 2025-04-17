@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Navigate } from 'react-router';
-import { SuspenseFallback } from '@/component';
+import { SuspenseFallback, SuspenseWrapper } from '@/component/suspense';
 import { MainSliceInitialState, useMainSlice } from '@/redux/store/main-slice';
 
 type Props = {
@@ -21,7 +21,11 @@ const RouteProtector: React.FC<Props> = ({
   }
 
   if (protectCallback(mainState)) {
-    return <PageComponent />;
+    return (
+      <SuspenseWrapper>
+        <PageComponent />
+      </SuspenseWrapper>
+    );
   }
 
   return <Navigate to={redirectTo} replace />;

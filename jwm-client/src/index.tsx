@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { SnackbarWrapper, SuspenseWrapper } from '@/component';
+import { SnackbarWrapper } from '@/component';
+import { SuspenseWrapper } from '@/component/suspense';
 import { ReduxStoreWrapper } from '@/redux';
 import { AppInitiator, AppRouter } from '@/router';
 import { MuiThemeSupplier } from '@/util/mui-theme-supplier';
