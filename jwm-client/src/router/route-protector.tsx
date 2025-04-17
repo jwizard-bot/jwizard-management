@@ -13,7 +13,7 @@ const RouteProtector: React.FC<Props> = ({
   redirectTo = '/auth/login',
   protectCallback = ({ loggedUser }) => !!loggedUser,
   PageComponent,
-}) => {
+}): React.ReactElement => {
   const mainState = useMainSlice();
 
   if (!mainState.initialized) {
@@ -30,7 +30,7 @@ const RouteProtector: React.FC<Props> = ({
 const LazyRouteProtector: React.FC<Props & { Fallback?: React.ComponentType }> = ({
   Fallback,
   ...rest
-}) => (
+}): React.ReactElement => (
   <SuspenseWrapper Fallback={Fallback}>
     <RouteProtector {...rest} />
   </SuspenseWrapper>
