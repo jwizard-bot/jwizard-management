@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { LoginForm, ValidateMfaForm, ValidateRecoveryMfaForm } from '@/component/login';
+import { LoginForm, ValidateMfaForm, ValidateRecoveryMfaForm } from '@/features/login';
 import { useMainSlice } from '@/redux/store/main-slice';
 
 const LoginPage: React.FC = (): React.ReactElement => {

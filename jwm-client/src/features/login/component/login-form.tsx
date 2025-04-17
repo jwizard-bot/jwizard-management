@@ -1,25 +1,18 @@
 import * as React from 'react';
 import { useEffect } from 'react';
-import { FormProvider, SubmitHandler, useForm } from 'react-hook-form';
-import * as Yup from 'yup';
-import { AuthCardWrapper } from '@/component/auth-card-wrapper';
+import { FormProvider, SubmitHandler } from 'react-hook-form';
+import { AuthCardWrapper } from '@/component/auth/auth-card-wrapper';
 import { CaptchaChallenge } from '@/component/input/captcha-challenge';
 import { FormTextInput } from '@/component/input/form-text-input';
 import { ToggledPasswordFormInput } from '@/component/input/toggled-password-form-input';
 import { useLoginMutation } from '@/redux/api/auth/slice';
 import { LoginReqDto } from '@/redux/api/auth/type';
-import { yupResolver } from '@hookform/resolvers/yup';
 import { Box, Button } from '@mui/material';
-
-const formSchema = Yup.object().shape({
-  login: Yup.string().required('Login is required'),
-  password: Yup.string().required('Password is required'),
-  cfToken: Yup.string().required('Verification is required'),
-});
+import { useLoginForm } from '../hook/use-login-form';
 
 const LoginForm: React.FC = (): React.ReactElement => {
   const [login, { isError }] = useLoginMutation();
-  const form = useForm<LoginReqDto>({ resolver: yupResolver(formSchema) });
+  const form = useLoginForm();
 
   const {
     resetField,

@@ -1,21 +1,12 @@
 import * as React from 'react';
-import { FormProvider, useForm } from 'react-hook-form';
-import * as Yup from 'yup';
-import { GenericMfaForm } from '@/component/login/generic-mfa-form';
+import { FormProvider } from 'react-hook-form';
 import { useValidateRecoveryMfaMutation } from '@/redux/api/auth/slice';
-import { yupResolver } from '@hookform/resolvers/yup';
-
-type ValidateRecoveryMfaFormType = {
-  mfaRecoveryCode: string;
-};
-
-const formSchema = Yup.object().shape({
-  mfaRecoveryCode: Yup.string().required('MFA recovery code is required'),
-});
+import { GenericMfaForm } from '../component/generic-mfa-form';
+import { useValidateRecoveryMfaForm } from '../hook/use-validate-recovery-mfa-form';
 
 const ValidateRecoveryMfaForm: React.FC = (): React.ReactElement => {
   const [validateRecoveryMfa, { isError }] = useValidateRecoveryMfaMutation();
-  const form = useForm<ValidateRecoveryMfaFormType>({ resolver: yupResolver(formSchema) });
+  const form = useValidateRecoveryMfaForm();
 
   return (
     <FormProvider {...form}>

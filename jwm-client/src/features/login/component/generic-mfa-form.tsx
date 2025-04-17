@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useEffect } from 'react';
 import { FieldValues, Path, SubmitHandler, useFormContext } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
-import { AuthCardWrapper } from '@/component/auth-card-wrapper';
+import { AuthCardWrapper } from '@/component/auth/auth-card-wrapper';
 import { ToggledPasswordFormInput } from '@/component/input/toggled-password-form-input';
 import { useCancelMfaMutation } from '@/redux/api/auth/slice';
 import { setMfaRecoveryMode } from '@/redux/store/main-slice';

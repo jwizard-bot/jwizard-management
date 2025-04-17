@@ -1,38 +1,20 @@
 import * as React from 'react';
 import { useEffect } from 'react';
-import { FormProvider, SubmitHandler, useForm } from 'react-hook-form';
+import { FormProvider, SubmitHandler } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import * as Yup from 'yup';
-import { useDialogContext } from '@/component';
-import { AuthCardWrapper } from '@/component/auth-card-wrapper';
-import { ConfirmationDialog } from '@/component/dialog/confirmation-dialog';
-import { CaptchaChallenge } from '@/component/input/captcha-challenge';
-import { ToggledPasswordFormInput } from '@/component/input/toggled-password-form-input';
+import { AuthCardWrapper } from '@/component/auth';
+import { ConfirmationDialog, useDialogContext } from '@/component/dialog';
+import { CaptchaChallenge, ToggledPasswordFormInput } from '@/component/input';
 import { useChangeDefaultPasswordMutation } from '@/redux/api/auth/slice';
 import { ChangeDefaultPasswordReqDto } from '@/redux/api/auth/type';
-import { yupResolver } from '@hookform/resolvers/yup';
 import { Box, Button } from '@mui/material';
-
-const formSchema = Yup.object().shape({
-  oldPassword: Yup.string().required('Old password is required'),
-  newPassword: Yup.string()
-    .required('New password is required')
-    .min(10, 'Password must be at least 10 characters long')
-    .matches(/[A-Z]/, 'Password must contain at least one uppercase letter')
-    .matches(/[a-z]/, 'Password must contain at least one lowercase letter')
-    .matches(/\d/, 'Password must contain at least one number')
-    .matches(/[!@#$%^&*]/, 'Password must contain at least one special character'),
-  confirmedNewPassword: Yup.string()
-    .required('Confirmed new password is required')
-    .oneOf([Yup.ref('newPassword')], 'Passwords do not match'),
-  cfToken: Yup.string().required('Verification is required'),
-});
+import { useChangeDefaultPasswordForm } from '../hook/use-change-default-password-form';
 
 const ChangeDefaultPasswordForm: React.FC = (): React.ReactElement => {
   const [changeDefaultPassword, { isError }] = useChangeDefaultPasswordMutation();
   const { setOpen } = useDialogContext();
   const navigate = useNavigate();
-  const form = useForm<ChangeDefaultPasswordReqDto>({ resolver: yupResolver(formSchema) });
+  const form = useChangeDefaultPasswordForm();
 
   const {
     reset,
