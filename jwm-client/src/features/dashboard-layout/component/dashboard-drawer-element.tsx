@@ -1,6 +1,7 @@
 import * as React from 'react';
-import { Dispatch, useCallback } from 'react';
+import { Dispatch, useCallback, useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import { useMainSlice } from '@/redux/store/main-slice';
 import { ExpandLess as ExpandLessIcon, ExpandMore as ExpandMoreIcon } from '@mui/icons-material';
 import { Collapse, List, ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
 import { MenuItem } from '../config/menu-items';
@@ -13,12 +14,23 @@ type Props = {
 };
 
 const DashboardDrawerElement: React.FC<Props> = ({
-  item: { text, icon, path, subItems },
+  item: { text, icon, path, onlyForAdmin, subItems },
   index,
   openSubMenu,
   setOpenSubMenu,
-}): React.ReactElement => {
+}): React.ReactElement | null => {
+  const { loggedUser } = useMainSlice();
   const hasSubitems = subItems && subItems.length > 0;
+
+  const allForAdmin = useMemo(
+    () => subItems?.every(({ onlyForAdmin }) => !!onlyForAdmin) || onlyForAdmin,
+    [subItems, onlyForAdmin]
+  );
+
+  const filteredSubItemsForAdmin = useMemo(
+    () => subItems?.filter(({ onlyForAdmin }) => (onlyForAdmin ? loggedUser?.admin : true)) || [],
+    [subItems]
+  );
 
   const handleSubMenuClick = useCallback(
     (key: number) => {
@@ -29,6 +41,11 @@ const DashboardDrawerElement: React.FC<Props> = ({
     },
     [openSubMenu]
   );
+
+  if (allForAdmin && !loggedUser?.admin) {
+    // disable only for admin menu elements if user is not admin
+    return null;
+  }
 
   if (!hasSubitems) {
     return (
@@ -48,7 +65,7 @@ const DashboardDrawerElement: React.FC<Props> = ({
       </ListItemButton>
       <Collapse in={openSubMenu[index]} timeout="auto" unmountOnExit>
         <List component="div" disablePadding>
-          {subItems.map((subItem, subIndex) => (
+          {filteredSubItemsForAdmin.map((subItem, subIndex) => (
             <ListItemButton key={subIndex} component={Link} to={path + subItem.path} sx={{ pl: 4 }}>
               <ListItemText primary={subItem.text} />
             </ListItemButton>
