@@ -12,10 +12,18 @@ import {
 type Props = {
   title: string;
   onSubmit: () => void;
+  loading?: boolean;
+  confirmationText?: string;
   children: React.ReactNode;
 };
 
-const ConfirmationDialog: React.FC<Props> = ({ title, children, onSubmit }): React.ReactElement => {
+const ConfirmationDialog: React.FC<Props> = ({
+  title,
+  onSubmit,
+  loading = false,
+  confirmationText = 'Confirm',
+  children,
+}): React.ReactElement => {
   const { isOpen, setClose } = useDialogContext();
 
   const setSubmit = (): void => {
@@ -27,13 +35,15 @@ const ConfirmationDialog: React.FC<Props> = ({ title, children, onSubmit }): Rea
     <Dialog open={isOpen} onClose={setClose}>
       <DialogTitle>{title}</DialogTitle>
       <DialogContent>
-        <DialogContentText> {children}</DialogContentText>
+        <DialogContentText>{children}</DialogContentText>
       </DialogContent>
       <DialogActions>
         <Button variant="contained" onClick={setClose} autoFocus>
           Cancel
         </Button>
-        <Button onClick={setSubmit}>Confirm</Button>
+        <Button loading={loading} onClick={setSubmit}>
+          {confirmationText}
+        </Button>
       </DialogActions>
     </Dialog>
   );
