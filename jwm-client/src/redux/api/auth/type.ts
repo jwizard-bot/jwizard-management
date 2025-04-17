@@ -15,7 +15,7 @@ export type LoginResDto = {
 };
 
 export type ValidateMfaResDto = {
-  loggedUser: LoggedUser | null;
+  loggedUser: LoggedUser;
 };
 
 export type ChangeDefaultPasswordReqDto = {

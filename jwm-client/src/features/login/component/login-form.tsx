@@ -20,7 +20,7 @@ const LoginForm: React.FC = (): React.ReactElement => {
     formState: { isSubmitting },
   } = form;
 
-  const onSubmit: SubmitHandler<LoginReqDto> = async data => {
+  const onSubmit: SubmitHandler<LoginReqDto> = async (data): Promise<void> => {
     await login(data);
   };
 
