@@ -7,4 +7,5 @@ data class SessionRevalidateState(
 	val initPasswordChanged: Boolean,
 	val expiredAtUtc: LocalDateTime,
 	val mfaPassed: Boolean,
+	val isAdmin: Boolean,
 )

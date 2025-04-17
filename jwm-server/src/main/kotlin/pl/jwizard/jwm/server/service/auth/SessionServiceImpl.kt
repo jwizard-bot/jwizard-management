@@ -105,14 +105,14 @@ class SessionServiceImpl(
 		val revalidateState = sessionSupplier.getSessionRevalidateState(sessionId)
 			?: return RevalidateStateResDto(exists = false, null, expired = false, requireMfa = false)
 
-		val (login, initPasswordChanged, expiredAtUtc, mfaPassed) = revalidateState
+		val (login, initPasswordChanged, expiredAtUtc, mfaPassed, isAdmin) = revalidateState
 		val now = LocalDateTime.now(ZoneOffset.UTC)
 		val isExpired = expiredAtUtc.isBefore(now)
 
 		return RevalidateStateResDto(
 			exists = !isExpired,
 			loggedUser = if (!isExpired && mfaPassed) {
-				LoggedUserData(login, !initPasswordChanged)
+				LoggedUserData(login, !initPasswordChanged, isAdmin)
 			} else {
 				null
 			},

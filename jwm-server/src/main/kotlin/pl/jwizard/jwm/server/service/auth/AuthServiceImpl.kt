@@ -132,6 +132,7 @@ class AuthServiceImpl(
 		val loggedUserData = LoggedUserData(
 			login = sessionUser.login,
 			hasDefaultPassword = !sessionUser.initPasswordChanged,
+			admin = sessionUser.isAdmin,
 		)
 		return CheckMfaResDto(loggedUserData)
 	}

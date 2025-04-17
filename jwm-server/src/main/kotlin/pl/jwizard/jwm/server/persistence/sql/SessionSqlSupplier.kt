@@ -46,7 +46,7 @@ class SessionSqlSupplier(private val jdbiQuery: JdbiQuery) : SessionSupplier {
 	override fun getSessionRevalidateState(sessionId: ByteArray) = jdbiQuery.queryForNullableObject(
 		sql = """
 			SELECT login, init_password_changed, expired_at_utc,
-			IF(ISNULL(mfa_passed), true, mfa_passed) mfa_passed
+			IF(ISNULL(mfa_passed), true, mfa_passed) mfa_passed, is_admin
 			FROM management_user_sessions mus
 			INNER JOIN management_users mu ON mus.user_id = mu.id
 			WHERE session_id = ?

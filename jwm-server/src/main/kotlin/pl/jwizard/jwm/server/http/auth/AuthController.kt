@@ -39,6 +39,7 @@ class AuthController(private val authService: AuthService) : HttpControllerBase 
 		val loggedUser = LoggedUserData(
 			login = reqDto.login,
 			hasDefaultPassword = !sessionData.initPasswordChanged,
+			admin = sessionData.isAdmin,
 		)
 		val resDto = LoginResDto(sessionData.mfaEnabled, loggedUser)
 		ctx.json(resDto)
