@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { SuspenseWrapper } from '@/component/suspense';
+import { DashboardSuspenseFallback, SuspenseWrapper } from '@/component/suspense';
 
 type Props = {
   Page: React.ComponentType;
@@ -7,9 +7,13 @@ type Props = {
 };
 
 const LazyRoute: React.FC<Props> = ({ Page, Fallback }): React.ReactElement => (
-  <SuspenseWrapper Fallback={Fallback}>
+  <SuspenseWrapper key={Date.now()} Fallback={Fallback}>
     <Page />
   </SuspenseWrapper>
 );
 
-export { LazyRoute };
+const DashboardLazyRoute: React.FC<Pick<Props, 'Page'>> = ({ Page }): React.ReactElement => (
+  <LazyRoute Fallback={DashboardSuspenseFallback} Page={Page} />
+);
+
+export { LazyRoute, DashboardLazyRoute };

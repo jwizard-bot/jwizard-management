@@ -11,7 +11,7 @@ import {
 
 type Props = {
   title: string;
-  onSubmit: () => void;
+  onSubmit: () => Promise<void>;
   loading?: boolean;
   confirmationText?: string;
   children: React.ReactNode;
@@ -26,9 +26,9 @@ const ConfirmationDialog: React.FC<Props> = ({
 }): React.ReactElement => {
   const { isOpen, setClose } = useDialogContext();
 
-  const setSubmit = (): void => {
+  const setSubmit = async (): Promise<void> => {
+    await onSubmit();
     setClose();
-    onSubmit();
   };
 
   return (

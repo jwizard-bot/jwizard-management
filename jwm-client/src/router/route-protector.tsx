@@ -36,4 +36,15 @@ const LazyRouteProtector: React.FC<Props & { Fallback?: React.ComponentType }> =
   </SuspenseWrapper>
 );
 
-export { LazyRouteProtector };
+const AdminLazyRouteProtector: React.FC<Pick<Props, 'PageComponent'>> = ({
+  PageComponent,
+}): React.ReactElement => (
+  <LazyRouteProtector
+    redirectTo={() => '/'}
+    protectCallback={({ loggedUser }) => !!loggedUser?.admin}
+    PageComponent={PageComponent}
+    Fallback={DashboardSuspenseFallback}
+  />
+);
+
+export { LazyRouteProtector, AdminLazyRouteProtector };
