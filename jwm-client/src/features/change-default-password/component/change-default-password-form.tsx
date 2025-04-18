@@ -1,19 +1,20 @@
 import * as React from 'react';
 import { useEffect } from 'react';
 import { FormProvider, SubmitHandler } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 import { AuthCardWrapper } from '@/component/auth';
 import { ConfirmationDialog, useDialogContext } from '@/component/dialog';
 import { CaptchaChallenge, ToggledPasswordFormInput } from '@/component/input';
 import { useChangeDefaultPasswordMutation } from '@/redux/api/auth/slice';
 import { ChangeDefaultPasswordReqDto } from '@/redux/api/auth/type';
+import { setSkippedChangeDefaultPassword } from '@/redux/store/main-slice';
 import { Box, Button } from '@mui/material';
 import { useChangeDefaultPasswordForm } from '../hook/use-change-default-password-form';
 
 const ChangeDefaultPasswordForm: React.FC = (): React.ReactElement => {
   const [changeDefaultPassword, { isError }] = useChangeDefaultPasswordMutation();
   const { setOpen } = useDialogContext();
-  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const form = useChangeDefaultPasswordForm();
 
   const {
@@ -71,7 +72,11 @@ const ChangeDefaultPasswordForm: React.FC = (): React.ReactElement => {
           Skip and go to dashboard
         </Button>
       </Box>
-      <ConfirmationDialog title="Skipping change default password" onSubmit={() => navigate('/')}>
+      <ConfirmationDialog
+        title="Skipping change default password"
+        onSubmit={async (): Promise<void> => {
+          dispatch(setSkippedChangeDefaultPassword(true));
+        }}>
         Are you sure to skip change default account password? Password can also might be changed at
         your account settings.
       </ConfirmationDialog>

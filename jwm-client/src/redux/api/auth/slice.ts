@@ -13,6 +13,7 @@ import {
   setDefaultPasswordState,
   setLoggedUser,
   setRequireMfa,
+  setSkippedChangeDefaultPassword,
 } from '@/redux/store/main-slice';
 import { isAnyOf } from '@reduxjs/toolkit';
 import { createApi } from '@reduxjs/toolkit/query/react';
@@ -108,6 +109,7 @@ listenerMiddleware.startListening({
     dispatch(setRequireMfa(false));
     dispatch(setLoggedUser(null));
     dispatch(setCsrf(null));
+    dispatch(setSkippedChangeDefaultPassword(false));
     enqueueSnackbar({ message: 'Successfully logout from account.', variant: 'success' });
   },
 });

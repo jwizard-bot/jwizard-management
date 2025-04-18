@@ -1,18 +1,18 @@
 import * as React from 'react';
-import { Navigate } from 'react-router';
+import { NavigateWithPreservePath } from '@/component';
 import { DashboardSuspenseFallback, SuspenseFallback, SuspenseWrapper } from '@/component/suspense';
 import { useMemoizedPath } from '@/hook/use-memoized-path';
 import { MainSliceInitialState, useMainSlice } from '@/redux/store/main-slice';
 
 type Props = {
-  redirectTo?: (mainState: MainSliceInitialState, memoizedPath: string) => string;
+  redirectTo: (memoizedPath: string) => string;
   protectCallback?: (mainState: MainSliceInitialState) => boolean;
   PageComponent: React.ComponentType;
 };
 
 const RouteProtector: React.FC<Props> = ({
-  redirectTo = () => '/auth/login',
-  protectCallback = ({ loggedUser }) => !!loggedUser,
+  redirectTo,
+  protectCallback = () => true,
   PageComponent,
 }): React.ReactElement => {
   const mainState = useMainSlice();
@@ -26,7 +26,7 @@ const RouteProtector: React.FC<Props> = ({
     return <PageComponent />;
   }
 
-  return <Navigate to={redirectTo(mainState, memoizedPath)} replace />;
+  return <NavigateWithPreservePath to={redirectTo(memoizedPath)} replace />;
 };
 
 const LazyRouteProtector: React.FC<Props & { Fallback?: React.ComponentType }> = ({
@@ -38,6 +38,30 @@ const LazyRouteProtector: React.FC<Props & { Fallback?: React.ComponentType }> =
   </SuspenseWrapper>
 );
 
+const NonLoggedUserLazyRouteProtector: React.FC<Omit<Props, 'redirectTo'>> = ({
+  protectCallback = () => true,
+  ...rest
+}): React.ReactElement => (
+  <LazyRouteProtector
+    redirectTo={memoizedPath => memoizedPath}
+    protectCallback={mainState => !mainState.loggedUser && protectCallback(mainState)}
+    {...rest}
+  />
+);
+
+// only for logged user routes
+const LoggedUserLazyRouteProtector: React.FC<Omit<Props, 'redirectTo'>> = ({
+  protectCallback = () => true,
+  ...rest
+}): React.ReactElement => (
+  <LazyRouteProtector
+    redirectTo={() => '/auth/login'}
+    protectCallback={mainState => !!mainState.loggedUser && protectCallback(mainState)}
+    {...rest}
+  />
+);
+
+// only for logged as admin user routes
 const AdminLazyRouteProtector: React.FC<Pick<Props, 'PageComponent'>> = ({
   PageComponent,
 }): React.ReactElement => (
@@ -49,4 +73,4 @@ const AdminLazyRouteProtector: React.FC<Pick<Props, 'PageComponent'>> = ({
   />
 );
 
-export { LazyRouteProtector, AdminLazyRouteProtector };
+export { NonLoggedUserLazyRouteProtector, LoggedUserLazyRouteProtector, AdminLazyRouteProtector };
