@@ -36,7 +36,12 @@ const router = createBrowserRouter([
         path: '/change-default-password',
         element: (
           <LazyRouteProtector
-            protectCallback={({ loggedUser }) => !!loggedUser}
+            protectCallback={({ loggedUser, skippedChangeDefaultPassword }) =>
+              !!loggedUser && !!loggedUser?.hasDefaultPassword && !skippedChangeDefaultPassword
+            }
+            redirectTo={({ loggedUser }, memoizedPath) =>
+              loggedUser ? memoizedPath : '/auth/login'
+            }
             PageComponent={AuthFormLayout}
           />
         ),
