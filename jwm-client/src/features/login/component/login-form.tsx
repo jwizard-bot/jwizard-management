@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { useEffect } from 'react';
 import { FormProvider, SubmitHandler } from 'react-hook-form';
 import { AuthCardWrapper } from '@/component/auth/auth-card-wrapper';
 import { CaptchaChallenge } from '@/component/input/captcha-challenge';
@@ -12,10 +11,9 @@ import { useLoginForm } from '../hook/use-login-form';
 
 const LoginForm: React.FC = (): React.ReactElement => {
   const [login, { isError }] = useLoginMutation();
-  const form = useLoginForm();
+  const form = useLoginForm(isError);
 
   const {
-    resetField,
     handleSubmit,
     formState: { isSubmitting },
   } = form;
@@ -23,12 +21,6 @@ const LoginForm: React.FC = (): React.ReactElement => {
   const onSubmit: SubmitHandler<LoginReqDto> = async (data): Promise<void> => {
     await login(data);
   };
-
-  useEffect(() => {
-    if (isError) {
-      resetField('password');
-    }
-  }, [isError]);
 
   return (
     <AuthCardWrapper caption="Log in to system via username and password.">

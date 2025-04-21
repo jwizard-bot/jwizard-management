@@ -6,7 +6,7 @@ import { useValidateRecoveryMfaForm } from '../hook/use-validate-recovery-mfa-fo
 
 const ValidateRecoveryMfaForm: React.FC = (): React.ReactElement => {
   const [validateRecoveryMfa, { isError }] = useValidateRecoveryMfaMutation();
-  const form = useValidateRecoveryMfaForm();
+  const form = useValidateRecoveryMfaForm(isError);
 
   return (
     <FormProvider {...form}>

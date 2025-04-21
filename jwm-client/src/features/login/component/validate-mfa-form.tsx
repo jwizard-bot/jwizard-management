@@ -6,7 +6,7 @@ import { useValidateMfaForm } from '../hook/use-validate-mfa-form';
 
 const ValidateMfaForm: React.FC = (): React.ReactElement => {
   const [validateMfa, { isError }] = useValidateMfaMutation();
-  const form = useValidateMfaForm();
+  const form = useValidateMfaForm(isError);
 
   return (
     <FormProvider {...form}>
