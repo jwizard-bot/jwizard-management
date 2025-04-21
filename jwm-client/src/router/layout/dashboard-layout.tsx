@@ -14,7 +14,7 @@ const DashboardLayout: React.FC = (): React.ReactElement => (
     <DialogProvider>
       <DashboardTopBar />
       <Box display="flex" width="100%">
-        <DashboardSideBar sidebarWidth={260} />
+        <DashboardSideBar sidebarWidth={280} />
         <Box component="main" flexGrow={1} display="flex" flexDirection="column" minHeight="100vh">
           <Toolbar />
           <Box flexGrow={1} sx={{ m: { xs: 2, md: 4 } }}>

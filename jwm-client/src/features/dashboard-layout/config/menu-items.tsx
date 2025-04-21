@@ -1,6 +1,7 @@
 import * as React from 'react';
 import {
   Dashboard as DashboardIcon,
+  LockPerson as LockPersonIcon,
   Settings as SettingsIcon,
   People as UsersIcon,
 } from '@mui/icons-material';
@@ -35,9 +36,19 @@ const menuItems: MenuItem[] = [
     ],
   },
   {
-    text: 'User settings',
+    text: 'Security',
+    icon: <LockPersonIcon />,
+    path: '/security',
+    subItems: [
+      { text: 'Sessions', path: '/sessions' },
+      { text: 'Login history', path: '/login-history' },
+      { text: 'System event log', path: '/system-event-log', onlyForAdmin: true },
+    ],
+  },
+  {
+    text: 'Account settings',
     icon: <SettingsIcon />,
-    path: '/user-settings',
+    path: '/account-settings',
     subItems: [
       { text: 'General', path: '' },
       { text: 'MFA settings', path: '/mfa' },

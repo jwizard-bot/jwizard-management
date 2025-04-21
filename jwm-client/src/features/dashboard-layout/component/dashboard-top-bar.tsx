@@ -94,7 +94,7 @@ const DashboardTopBar: React.FC = (): React.ReactElement | null => {
             <Divider />
             <MenuItem
               onClick={(): void => {
-                navigate('/user-settings');
+                navigate('/account-settings');
                 handleMenuClose();
               }}>
               <ListItemIcon>
