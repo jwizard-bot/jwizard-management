@@ -6,8 +6,8 @@ const DashboardFooter: React.FC = (): React.ReactElement => {
   const { shortSHA, vcsLink } = useDeploymentInfo();
 
   return (
-    <Box display="flex" justifyContent="center" my={2}>
-      <Typography variant="caption">
+    <Box display="flex" justifyContent="center" my={3}>
+      <Typography variant="body2">
         Build version:{' '}
         <Link href={vcsLink} target="_blank">
           {shortSHA}
