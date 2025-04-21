@@ -48,6 +48,9 @@ const mainSlice = createSlice({
     setCsrf: (state, action: PayloadAction<CsrfResDto | null>) => {
       state.csrf = action.payload;
     },
+    setDashboardDrawerState: (state, action: PayloadAction<boolean>) => {
+      state.dashboardDrawerOpen = action.payload;
+    },
     toggleDashboardDrawerState: state => {
       state.dashboardDrawerOpen = !state.dashboardDrawerOpen;
     },
@@ -66,6 +69,7 @@ export const {
   setLoggedUser,
   setDefaultPasswordState,
   setCsrf,
+  setDashboardDrawerState,
   toggleDashboardDrawerState,
   setSkippedChangeDefaultPassword,
 } = mainSlice.actions;
