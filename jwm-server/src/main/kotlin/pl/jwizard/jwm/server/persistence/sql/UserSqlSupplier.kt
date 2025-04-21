@@ -25,6 +25,12 @@ class UserSqlSupplier(private val jdbiQuery: JdbiQuery) : UserSupplier {
 		return jdbiQuery.queryForNullableObject(sql, UserCredentials::class, login)
 	}
 
+	override fun getUserEmail(login: String) = jdbiQuery.queryForNullableObject(
+		sql = "SELECT email FROM management_users WHERE login = ?",
+		type = String::class,
+		login,
+	)
+
 	override fun createUser(
 		login: String,
 		passwordHash: String,
@@ -49,6 +55,14 @@ class UserSqlSupplier(private val jdbiQuery: JdbiQuery) : UserSupplier {
 		columns = mapOf(
 			"password" to SqlColumn(newPasswordHash, JDBCType.CHAR),
 			"init_password_changed" to SqlColumn(true, JDBCType.BOOLEAN),
+		),
+		findColumn = "id" to SqlColumn(userId, JDBCType.BIGINT),
+	)
+
+	override fun updateUserEmail(userId: Long, newEmail: String?) = jdbiQuery.updateSingle(
+		tableName = "management_users",
+		columns = mapOf(
+			"email" to SqlColumn(newEmail, JDBCType.VARCHAR),
 		),
 		findColumn = "id" to SqlColumn(userId, JDBCType.BIGINT),
 	)
