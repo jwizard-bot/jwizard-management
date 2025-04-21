@@ -8,17 +8,13 @@ import pl.jwizard.jwl.util.base64decode
 import pl.jwizard.jwl.util.logger
 import pl.jwizard.jwm.server.core.auth.SessionUser
 import pl.jwizard.jwm.server.http.auth.AuthService
-import pl.jwizard.jwm.server.http.auth.dto.CheckMfaResDto
-import pl.jwizard.jwm.server.http.auth.dto.LoginReqDto
-import pl.jwizard.jwm.server.http.auth.dto.SessionData
-import pl.jwizard.jwm.server.http.auth.dto.UpdateDefaultPasswordReqDto
 import pl.jwizard.jwm.server.http.dto.LoggedUserData
 import pl.jwizard.jwm.server.property.ServerProperty
-import pl.jwizard.jwm.server.service.CaptchaService
 import pl.jwizard.jwm.server.service.crypto.EncryptService
 import pl.jwizard.jwm.server.service.crypto.SecureRndGeneratorService
 import pl.jwizard.jwm.server.service.spi.SessionSupplier
 import pl.jwizard.jwm.server.service.spi.UserSupplier
+import pl.jwizard.jwm.server.service.spi.dto.UserCredentials
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 
@@ -28,7 +24,6 @@ class AuthServiceImpl(
 	private val secureRndGeneratorService: SecureRndGeneratorService,
 	private val userAgentExtractor: UserAgentExtractor,
 	private val geolocationProvider: GeolocationProvider,
-	private val captchaService: CaptchaService,
 	private val userSupplier: UserSupplier,
 	private val sessionSupplier: SessionSupplier,
 	environment: BaseEnvironment,
@@ -37,30 +32,34 @@ class AuthServiceImpl(
 		private val log = logger<AuthServiceImpl>()
 	}
 
-	private val sessionTtlSec = environment
-		.getProperty<Int>(ServerProperty.SERVER_AUTH_SESSION_TTL_SEC)
 	private val sidTokenLength = environment
 		.getProperty<Int>(ServerProperty.SERVER_AUTH_SESSION_SID_TOKEN_LENGTH)
 	private val csrfTokenLength = environment
 		.getProperty<Int>(ServerProperty.SERVER_AUTH_SESSION_CSRF_TOKEN_LENGTH)
-	private val cookieDomain = environment
-		.getProperty<String>(ServerProperty.SERVER_AUTH_COOKIE_DOMAIN)
 
-	override fun login(reqDto: LoginReqDto, userAgent: String?, ipAddress: String?): SessionData? {
-		val success = captchaService.performChallenge(ipAddress, reqDto.cfToken)
-		if (!success) {
-			return null
-		}
-		val userCredentials = userSupplier.getUserCredentials(reqDto.login) ?: return null
+	override val cookieDomain = environment
+		.getProperty<String>(ServerProperty.SERVER_AUTH_COOKIE_DOMAIN)
+	override val sessionTtlSec = environment
+		.getProperty<Int>(ServerProperty.SERVER_AUTH_SESSION_TTL_SEC)
+
+	override fun validateUserCredentials(login: String, password: String): UserCredentials? {
+		val userCredentials = userSupplier.getUserCredentials(login) ?: return null
 		// validate password hash
-		if (!encryptService.validateHash(reqDto.password, userCredentials.passwordHash)) {
+		if (!encryptService.validateHash(password, userCredentials.passwordHash)) {
 			return null
 		}
+		return userCredentials
+	}
+
+	override fun persistNewUserSession(
+		userCredentials: UserCredentials,
+		ip: String?,
+		userAgent: String?,
+	): String {
 		val now = LocalDateTime.now(ZoneOffset.UTC)
 		val sessionId = secureRndGeneratorService.generate(sidTokenLength)
 		val expiredAt = now.plusSeconds(sessionTtlSec.toLong())
 		val (deviceSystem, deviceMobile) = userAgentExtractor.analyzeAndExtract(userAgent)
-
 		// persist new user session
 		sessionSupplier.saveUserSession(
 			sessionId = base64decode(sessionId),
@@ -70,45 +69,34 @@ class AuthServiceImpl(
 			lastLoginUtc = now,
 			deviceSystem = deviceSystem,
 			deviceMobile = deviceMobile,
-			geolocationInfo = geolocationProvider.getGeolocationInfo(ipAddress),
+			geolocationInfo = geolocationProvider.getGeolocationInfo(ip),
 			csrfToken = encryptService.encrypt(secureRndGeneratorService.generate(csrfTokenLength)),
 		)
 		log.debug("Persist new session for user ID: \"{}\".", userCredentials.userId)
-		return SessionData(
-			isAdmin = userCredentials.isAdmin,
-			initPasswordChanged = userCredentials.initPasswordChanged,
-			mfaEnabled = userCredentials.mfaEnabled,
-			sessionId,
-			sessionTtlSec,
-			cookieDomain,
-		)
+		return sessionId
 	}
 
-	override fun checkRecoveryMfa(code: String, sessionUser: SessionUser): CheckMfaResDto {
+	override fun checkRecoveryMfa(code: String, sessionUser: SessionUser): LoggedUserData {
 		// TODO: check recovery code and set as used in DB
 		sessionSupplier.setMfaValidationChecked(sessionUser.sessionId, true)
 		log.debug("Passed MFA recovery code for user: \"{}\".", sessionUser)
-		return fromSessionUserToMfaResDto(sessionUser)
+		return fromSessionUserToLoggedUserData(sessionUser)
 	}
 
-	override fun checkMfa(code: String, sessionUser: SessionUser): CheckMfaResDto {
+	override fun checkMfa(code: String, sessionUser: SessionUser): LoggedUserData {
 		// TODO validate MFA token
 		sessionSupplier.setMfaValidationChecked(sessionUser.sessionId, true)
 		log.debug("Passed MFA verification for user: \"{}\".", sessionUser)
-		return fromSessionUserToMfaResDto(sessionUser)
+		return fromSessionUserToLoggedUserData(sessionUser)
 	}
 
 	override fun updateDefaultPassword(
-		reqDto: UpdateDefaultPasswordReqDto,
-		ipAddress: String?,
+		oldPassword: String,
+		newPassword: String,
 		sessionUser: SessionUser,
 	): Boolean {
-		val success = captchaService.performChallenge(ipAddress, reqDto.cfToken)
-		if (!success) {
-			return false
-		}
 		val userCredentials = userSupplier.getUserCredentials(sessionUser.login) ?: return false
-		if (!encryptService.validateHash(reqDto.oldPassword, userCredentials.passwordHash)) {
+		if (!encryptService.validateHash(oldPassword, userCredentials.passwordHash)) {
 			log.debug(
 				"Attempt to change init password with incorrect old password for user: \"{}\".",
 				sessionUser,
@@ -117,7 +105,7 @@ class AuthServiceImpl(
 		}
 		userSupplier.changeInitPassword(
 			userId = sessionUser.userId,
-			newPasswordHash = encryptService.hash(reqDto.newPassword),
+			newPasswordHash = encryptService.hash(newPassword),
 		)
 		log.debug("Changed init password for user: \"{}\".", sessionUser)
 		return true
@@ -128,12 +116,9 @@ class AuthServiceImpl(
 		log.debug("Delete session from user ID: \"{}\".", sessionUser.userId)
 	}
 
-	private fun fromSessionUserToMfaResDto(sessionUser: SessionUser): CheckMfaResDto {
-		val loggedUserData = LoggedUserData(
-			login = sessionUser.login,
-			hasDefaultPassword = !sessionUser.initPasswordChanged,
-			admin = sessionUser.isAdmin,
-		)
-		return CheckMfaResDto(loggedUserData)
-	}
+	private fun fromSessionUserToLoggedUserData(sessionUser: SessionUser) = LoggedUserData(
+		login = sessionUser.login,
+		hasDefaultPassword = !sessionUser.initPasswordChanged,
+		admin = sessionUser.isAdmin,
+	)
 }

@@ -7,11 +7,9 @@ import pl.jwizard.jwl.server.useragent.GeolocationProvider
 import pl.jwizard.jwl.util.base64encode
 import pl.jwizard.jwl.util.logger
 import pl.jwizard.jwl.util.timeDifference
-import pl.jwizard.jwm.server.core.ApiHttpHeader
 import pl.jwizard.jwm.server.core.auth.SessionUser
 import pl.jwizard.jwm.server.http.dto.LoggedUserData
 import pl.jwizard.jwm.server.http.session.SessionService
-import pl.jwizard.jwm.server.http.session.dto.CsrfTokenResDto
 import pl.jwizard.jwm.server.http.session.dto.RevalidateStateResDto
 import pl.jwizard.jwm.server.http.session.dto.SessionData
 import pl.jwizard.jwm.server.http.session.dto.SessionsDataResDto
@@ -80,7 +78,7 @@ class SessionServiceImpl(
 		val now = LocalDateTime.now(ZoneOffset.UTC)
 		if (expiredAtUtc.isAfter(now)) {
 			sessionSupplier.deleteSession(toDeleteSessionId)
-			log.debug("Delete user session for session ID: \"{}\".", toDeleteSessionId)
+			log.debug("Delete user session for session ID: \"{}\".", base64encode(toDeleteSessionId))
 			return true
 		}
 		return false
@@ -92,10 +90,10 @@ class SessionServiceImpl(
 		log.debug("Delete: {} user sessions for user ID: \"{}\".", deleted, userId)
 	}
 
-	override fun updateAndGetCsrfToken(sessionId: ByteArray): CsrfTokenResDto {
+	override fun updateAndGetCsrfToken(sessionId: ByteArray): String {
 		val csrfToken = encryptService.encrypt(secureRndGeneratorService.generate(csrfTokenLength))
 		sessionSupplier.updateCsrfToken(sessionId, csrfToken)
-		return CsrfTokenResDto(csrfToken, ApiHttpHeader.X_CSRF_TOKEN.headerName)
+		return csrfToken
 	}
 
 	override fun revalidate(sessionId: ByteArray?): RevalidateStateResDto {

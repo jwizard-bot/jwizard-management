@@ -14,50 +14,59 @@ import pl.jwizard.jwm.server.core.ServerCookie.Companion.removeCookie
 import pl.jwizard.jwm.server.core.exception.SpecifiedException
 import pl.jwizard.jwm.server.core.handler.AuthNoMfaRouteHandler
 import pl.jwizard.jwm.server.core.handler.AuthRouteHandler
+import pl.jwizard.jwm.server.http.CaptchaService
+import pl.jwizard.jwm.server.http.auth.dto.CheckMfaResDto
 import pl.jwizard.jwm.server.http.auth.dto.LoginReqDto
 import pl.jwizard.jwm.server.http.auth.dto.LoginResDto
 import pl.jwizard.jwm.server.http.auth.dto.UpdateDefaultPasswordReqDto
 import pl.jwizard.jwm.server.http.dto.LoggedUserData
 
 @Component
-class AuthController(private val authService: AuthService) : HttpControllerBase {
+class AuthController(
+	private val authService: AuthService,
+	private val captchaService: CaptchaService,
+) : HttpControllerBase {
 	override val basePath = "/api/v1/auth"
 
 	private val login = RouteHandler { ctx ->
 		val reqDto = ctx.bodyAsClass<LoginReqDto>()
-		val ipAddress = ctx.header(ApiHttpHeader.CF_CONNECTING_IP)
-		val sessionData = authService.login(reqDto, ctx.userAgent(), ipAddress)
+		val ip = ctx.header(ApiHttpHeader.CF_CONNECTING_IP)
+		val pass = captchaService.performChallenge(ip, reqDto.cfToken)
+		if (!pass) {
+			throw HttpException(SpecifiedException.UNABLE_TO_VERIFY_CF_TOKEN)
+		}
+		val credentials = authService.validateUserCredentials(reqDto.login, reqDto.password)
 			?: throw HttpException(SpecifiedException.INCORRECT_USERNAME_AND_OR_PASSWORD)
-
+		val sessionId = authService.persistNewUserSession(credentials, ip, ctx.userAgent())
 		val sidCookie = ServerCookie.SID.toCookieInstance(
-			value = sessionData.sessionId,
-			ttl = sessionData.sessionTtl,
-			domain = sessionData.cookieDomain,
+			value = sessionId,
+			ttl = authService.sessionTtlSec,
+			domain = authService.cookieDomain,
 			httpOnly = true,
 			secure = true,
 		)
 		val loggedUser = LoggedUserData(
 			login = reqDto.login,
-			hasDefaultPassword = !sessionData.initPasswordChanged,
-			admin = sessionData.isAdmin,
+			hasDefaultPassword = !credentials.initPasswordChanged,
+			admin = credentials.isAdmin,
 		)
-		val resDto = LoginResDto(sessionData.mfaEnabled, loggedUser)
+		val resDto = LoginResDto(credentials.mfaEnabled, loggedUser)
 		ctx.json(resDto)
 		ctx.cookie(sidCookie)
 	}
 
 	private val checkMfa = AuthNoMfaRouteHandler { ctx, sessionUser ->
 		val code = ctx.pathParam("code")
-		val resDto = authService.checkMfa(code, sessionUser)
+		val loggedUserData = authService.checkMfa(code, sessionUser)
 			?: throw HttpException(SpecifiedException.INCORRECT_MFA_TOKEN)
-		ctx.json(resDto)
+		ctx.json(CheckMfaResDto(loggedUserData))
 	}
 
 	private val checkRecoveryMfa = AuthNoMfaRouteHandler { ctx, sessionUser ->
 		val code = ctx.pathParam("code")
-		val resDto = authService.checkRecoveryMfa(code, sessionUser)
+		val loggedUserData = authService.checkRecoveryMfa(code, sessionUser)
 			?: throw HttpException(SpecifiedException.INCORRECT_RECOVERY_CODE)
-		ctx.json(resDto)
+		ctx.json(CheckMfaResDto(loggedUserData))
 	}
 
 	private val cancelMfa = AuthNoMfaRouteHandler { ctx, sessionUser ->
@@ -68,8 +77,14 @@ class AuthController(private val authService: AuthService) : HttpControllerBase 
 
 	private val updateInitPassword = AuthRouteHandler { ctx, sessionUser ->
 		val reqDto = ctx.bodyAsClass<UpdateDefaultPasswordReqDto>()
-		val ipAddress = ctx.header(ApiHttpHeader.CF_CONNECTING_IP)
-		if (!authService.updateDefaultPassword(reqDto, ipAddress, sessionUser)) {
+		val pass = captchaService.performChallenge(
+			cfIp = ctx.header(ApiHttpHeader.CF_CONNECTING_IP),
+			cfToken = reqDto.cfToken,
+		)
+		if (!pass) {
+			throw HttpException(SpecifiedException.UNABLE_TO_VERIFY_CF_TOKEN)
+		}
+		if (!authService.updateDefaultPassword(reqDto.oldPassword, reqDto.newPassword, sessionUser)) {
 			throw HttpException(SpecifiedException.UNABLE_TO_CHANGE_DEFAULT_PASSWORD)
 		}
 		ctx.status(HttpStatus.NO_CONTENT)

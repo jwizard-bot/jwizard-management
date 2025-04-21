@@ -1,20 +1,29 @@
 package pl.jwizard.jwm.server.http.auth
 
 import pl.jwizard.jwm.server.core.auth.SessionUser
-import pl.jwizard.jwm.server.http.auth.dto.CheckMfaResDto
-import pl.jwizard.jwm.server.http.auth.dto.LoginReqDto
-import pl.jwizard.jwm.server.http.auth.dto.SessionData
-import pl.jwizard.jwm.server.http.auth.dto.UpdateDefaultPasswordReqDto
+import pl.jwizard.jwm.server.http.dto.LoggedUserData
+import pl.jwizard.jwm.server.service.spi.dto.UserCredentials
 
 interface AuthService {
-	fun login(reqDto: LoginReqDto, userAgent: String?, ipAddress: String?): SessionData?
+	val sessionTtlSec: Int
 
-	fun checkMfa(code: String, sessionUser: SessionUser): CheckMfaResDto?
+	val cookieDomain: String
 
-	fun checkRecoveryMfa(code: String, sessionUser: SessionUser): CheckMfaResDto?
+	fun validateUserCredentials(login: String, password: String): UserCredentials?
+
+	fun persistNewUserSession(
+		userCredentials: UserCredentials,
+		ip: String?,
+		userAgent: String?
+	): String
+
+	fun checkMfa(code: String, sessionUser: SessionUser): LoggedUserData?
+
+	fun checkRecoveryMfa(code: String, sessionUser: SessionUser): LoggedUserData?
 
 	fun updateDefaultPassword(
-		reqDto: UpdateDefaultPasswordReqDto, ipAddress: String?,
+		oldPassword: String,
+		newPassword: String,
 		sessionUser: SessionUser,
 	): Boolean
 

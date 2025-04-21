@@ -7,12 +7,14 @@ import pl.jwizard.jwl.server.route.HttpControllerBase
 import pl.jwizard.jwl.server.route.RouteDefinitionBuilder
 import pl.jwizard.jwl.server.route.handler.RouteHandler
 import pl.jwizard.jwl.util.base64decode
+import pl.jwizard.jwm.server.core.ApiHttpHeader
 import pl.jwizard.jwm.server.core.ServerCookie
 import pl.jwizard.jwm.server.core.ServerCookie.Companion.cookie
 import pl.jwizard.jwm.server.core.ServerCookie.Companion.removeCookie
 import pl.jwizard.jwm.server.core.exception.SpecifiedException
 import pl.jwizard.jwm.server.core.handler.AuthNoMfaRouteHandler
 import pl.jwizard.jwm.server.core.handler.AuthRouteHandler
+import pl.jwizard.jwm.server.http.session.dto.CsrfTokenResDto
 
 @Component
 class SessionController(private val sessionService: SessionService) : HttpControllerBase {
@@ -24,7 +26,8 @@ class SessionController(private val sessionService: SessionService) : HttpContro
 	}
 
 	private val getCsrfToken = AuthNoMfaRouteHandler { ctx, loggedUser ->
-		val resDto = sessionService.updateAndGetCsrfToken(loggedUser.sessionId)
+		val csrfToken = sessionService.updateAndGetCsrfToken(loggedUser.sessionId)
+		val resDto = CsrfTokenResDto(csrfToken, ApiHttpHeader.X_CSRF_TOKEN.headerName)
 		ctx.json(resDto)
 	}
 

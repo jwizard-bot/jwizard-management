@@ -7,21 +7,22 @@ import pl.jwizard.jwl.http.SecureHttpClientService
 import pl.jwizard.jwl.http.UrlSearchParamsBuilder
 import pl.jwizard.jwl.property.BaseEnvironment
 import pl.jwizard.jwl.util.logger
+import pl.jwizard.jwm.server.http.CaptchaService
 import pl.jwizard.jwm.server.property.ServerProperty
 
 @Component
-class CaptchaService(
+class CaptchaServiceImpl(
 	private val secureHttpClientService: SecureHttpClientService,
 	environment: BaseEnvironment,
-) {
+) : CaptchaService {
 	companion object {
-		private val log = logger<CaptchaService>()
+		private val log = logger<CaptchaServiceImpl>()
 	}
 
 	private val endpoint = environment.getProperty<String>(ServerProperty.CF_CAPTCHA_VERIFY_ENDPOINT)
 	private val secretKey = environment.getProperty<String>(ServerProperty.CF_CAPTCHA_SECRET_KEY)
 
-	fun performChallenge(cfIp: String?, cfToken: String): Boolean {
+	override fun performChallenge(cfIp: String?, cfToken: String): Boolean {
 		val bodyParams = UrlSearchParamsBuilder()
 			.addParam("secret", secretKey)
 			.addParam("response", cfToken)
