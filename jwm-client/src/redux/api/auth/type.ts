@@ -1,8 +1,4 @@
-import { LoggedUser } from '@/redux/api/type';
-
-export type CfTokenProtected = {
-  cfToken: string;
-};
+import { CfTokenProtected, LoggedUser } from '@/redux/api/type';
 
 export type LoginReqDto = {
   login: string;

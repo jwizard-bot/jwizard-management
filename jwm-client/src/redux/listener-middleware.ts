@@ -13,10 +13,12 @@ const errorMessages: Record<string, string> = {
   // custom
   INCORRECT_USERNAME_AND_OR_PASSWORD: 'Incorrect username and/or password.',
   UNABLE_TO_VERIFY_CF_TOKEN: 'Unable to verify Captcha challenge.',
-  INCORRECT_MFA_TOKEN: 'Incorrect MFA token.',
+  INCORRECT_OR_EXPIRED_MFA_TOKEN: 'Incorrect or expired MFA token.',
+  INCORRECT_OR_EXPIRED_OTA_TOKEN: 'Incorrect or expired OTA token.',
   INCORRECT_RECOVERY_CODE: 'Incorrect recovery code.',
   UNABLE_TO_CHANGE_DEFAULT_PASSWORD: 'Unable to change default password.',
   UNABLE_TO_UPDATE_ACCOUNT_PASSWORD: 'Unable to update account password.',
+  UNABLE_TO_UPDATE_FORGOT_PASSWORD: 'Unable to update forgot password.',
   SESSION_BASED_ID_NOT_FOUND: 'Session based passed ID not found.',
 } as const;
 

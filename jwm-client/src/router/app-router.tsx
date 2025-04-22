@@ -13,7 +13,9 @@ const AuthFormLayout = lazy(() => import('@/router/layout/auth-form-layout'));
 const DashboardLayout = lazy(() => import('@/router/layout/dashboard-layout'));
 const DashboardRootRoute = lazy(() => import('@/router/dashboard-root-route'));
 
-const LoginPage = lazy(() => import('@/page/auth/login'));
+const AuthLoginPage = lazy(() => import('@/page/auth/login'));
+const AuthRequestForgotPasswordPage = lazy(() => import('@/page/auth/request-forgot-password'));
+const AuthChangeForgotPasswordPage = lazy(() => import('@/page/auth/change-forgot-password'));
 
 const DashboardPage = lazy(() => import('@/page/dashboard'));
 
@@ -35,7 +37,20 @@ const router = createBrowserRouter([
       {
         path: '/auth',
         element: <NonLoggedUserLazyRouteProtector PageComponent={AuthFormLayout} />,
-        children: [{ path: 'login', element: <LazyRoute PageComponent={LoginPage} /> }],
+        children: [
+          {
+            path: 'login',
+            element: <LazyRoute PageComponent={AuthLoginPage} />,
+          },
+          {
+            path: 'request-forgot-password',
+            element: <LazyRoute PageComponent={AuthRequestForgotPasswordPage} />,
+          },
+          {
+            path: 'change-forgot-password/:otaToken',
+            element: <LazyRoute PageComponent={AuthChangeForgotPasswordPage} />,
+          },
+        ],
       },
       {
         path: '/',

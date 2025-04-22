@@ -3,3 +3,7 @@ export type LoggedUser = {
   hasDefaultPassword: boolean;
   admin: boolean;
 };
+
+export type CfTokenProtected = {
+  cfToken: string;
+};

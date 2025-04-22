@@ -1,12 +1,13 @@
 import * as React from 'react';
 import { FormProvider, SubmitHandler } from 'react-hook-form';
+import { Link as RouterLink } from 'react-router';
 import { AuthCardWrapper } from '@/component/auth/auth-card-wrapper';
 import { CaptchaChallenge } from '@/component/input/captcha-challenge';
 import { FormTextInput } from '@/component/input/form-text-input';
 import { ToggledPasswordFormInput } from '@/component/input/toggled-password-form-input';
 import { useLoginMutation } from '@/redux/api/auth/slice';
 import { LoginReqDto } from '@/redux/api/auth/type';
-import { Box, Button } from '@mui/material';
+import { Box, Button, Link } from '@mui/material';
 import { useLoginForm } from '../hook/use-login-form';
 
 const LoginForm: React.FC = (): React.ReactElement => {
@@ -50,6 +51,9 @@ const LoginForm: React.FC = (): React.ReactElement => {
         <Button variant="contained" fullWidth type="submit" loading={isSubmitting}>
           Log in
         </Button>
+        <Link component={RouterLink} to="/auth/request-forgot-password" alignSelf="center">
+          Forgot password
+        </Link>
       </Box>
     </AuthCardWrapper>
   );

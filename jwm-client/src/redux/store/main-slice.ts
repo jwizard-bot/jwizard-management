@@ -12,6 +12,7 @@ type MainSliceInitialState = {
   csrf: CsrfResDto | null;
   dashboardDrawerOpen: boolean;
   skippedChangeDefaultPassword: boolean;
+  requestForChangePassword: boolean;
 };
 
 const initialState: MainSliceInitialState = {
@@ -22,6 +23,7 @@ const initialState: MainSliceInitialState = {
   csrf: null,
   dashboardDrawerOpen: true,
   skippedChangeDefaultPassword: false,
+  requestForChangePassword: false,
 };
 
 const mainSlice = createSlice({
@@ -57,6 +59,9 @@ const mainSlice = createSlice({
     setSkippedChangeDefaultPassword: (state, action: PayloadAction<boolean>) => {
       state.skippedChangeDefaultPassword = action.payload;
     },
+    setRequestForChangePassword: (state, action: PayloadAction<boolean>) => {
+      state.requestForChangePassword = action.payload;
+    },
   },
 });
 
@@ -72,6 +77,7 @@ export const {
   setDashboardDrawerState,
   toggleDashboardDrawerState,
   setSkippedChangeDefaultPassword,
+  setRequestForChangePassword,
 } = mainSlice.actions;
 
 export { type MainSliceInitialState, mainSlice, useMainSlice };

@@ -2,39 +2,33 @@ import * as React from 'react';
 import { Provider } from 'react-redux';
 import { config } from '@/config';
 import { authApiSlice } from '@/redux/api/auth/slice';
+import { forgotPasswordApiSlice } from '@/redux/api/forgot-password/slice';
 import { sessionApiSlice } from '@/redux/api/session/slice';
 import { userAccountApiSlice } from '@/redux/api/user-account/slice';
 import { listenerMiddleware } from '@/redux/listener-middleware';
 import { mainSlice } from '@/redux/store/main-slice';
 import { configureStore } from '@reduxjs/toolkit';
 
-const apiSlices = [authApiSlice, sessionApiSlice, userAccountApiSlice];
-const storeSlices = [mainSlice];
-
 const store = configureStore({
   reducer: {
     // api
-    ...apiSlices.reduce(
-      (acc, slice) => ({
-        ...acc,
-        [slice.reducerPath]: slice.reducer,
-      }),
-      {}
-    ),
+    [authApiSlice.reducerPath]: authApiSlice.reducer,
+    [sessionApiSlice.reducerPath]: sessionApiSlice.reducer,
+    [userAccountApiSlice.reducerPath]: userAccountApiSlice.reducer,
+    [forgotPasswordApiSlice.reducerPath]: forgotPasswordApiSlice.reducer,
     // regular
-    ...storeSlices.reduce(
-      (acc, slice) => ({
-        ...acc,
-        [slice.reducerPath]: slice.reducer,
-      }),
-      {}
-    ),
+    [mainSlice.reducerPath]: mainSlice.reducer,
   },
   devTools: config.isDev,
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware()
       .prepend(listenerMiddleware.middleware)
-      .concat(apiSlices.map(({ middleware }) => middleware)),
+      .concat([
+        authApiSlice.middleware,
+        sessionApiSlice.middleware,
+        userAccountApiSlice.middleware,
+        forgotPasswordApiSlice.middleware,
+      ]),
 });
 
 type RootState = ReturnType<typeof store.getState>;
