@@ -31,6 +31,7 @@ const ToggledPasswordFormInput = <T extends FieldValues>(props: Props<T>): React
       <InputAdornment position="end">
         <IconButton
           size="small"
+          tabIndex={-1}
           onClick={() => setShowPassword(prevState => !prevState)}
           onMouseDown={e => e.preventDefault()}
           onMouseUp={e => e.preventDefault()}
