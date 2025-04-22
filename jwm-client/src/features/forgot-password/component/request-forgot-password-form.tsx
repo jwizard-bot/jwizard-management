@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { FormProvider, SubmitHandler } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
+import { Link as RouterLink } from 'react-router';
 import { SystemAlert } from '@/component';
 import { AuthCardWrapper } from '@/component/auth';
 import { CaptchaChallenge, FormTextInput } from '@/component/input';
@@ -48,6 +49,9 @@ const RequestForgotPasswordForm: React.FC = (): React.ReactElement => {
         <Button variant="contained" fullWidth type="submit" loading={isSubmitting}>
           Send request
         </Button>
+        <Link component={RouterLink} to="/auth/login" alignSelf="center">
+          Return to login page
+        </Link>
         <Link
           component="button"
           type="button"
