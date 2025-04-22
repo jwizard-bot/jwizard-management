@@ -1,5 +1,6 @@
-import { UseFormReturn, useForm } from 'react-hook-form';
+import { UseFormReturn } from 'react-hook-form';
 import * as Yup from 'yup';
+import { useMutationForm } from '@/hook/use-mutation-form';
 import { ChangeDefaultPasswordReqDto } from '@/redux/api/auth/type';
 import { yupResolver } from '@hookform/resolvers/yup';
 
@@ -18,8 +19,15 @@ const formSchema = Yup.object().shape({
   cfToken: Yup.string().required('Verification is required'),
 });
 
-const useChangeDefaultPasswordForm = (): UseFormReturn<ChangeDefaultPasswordReqDto> => {
-  return useForm<ChangeDefaultPasswordReqDto>({ resolver: yupResolver(formSchema) });
-};
+const useChangeDefaultPasswordForm = (
+  isMutationError: boolean
+): UseFormReturn<ChangeDefaultPasswordReqDto> =>
+  useMutationForm<ChangeDefaultPasswordReqDto>({
+    isMutationError,
+    onErrorCallback: form => {
+      form.resetField('oldPassword');
+    },
+    resolver: yupResolver(formSchema),
+  });
 
 export { useChangeDefaultPasswordForm };

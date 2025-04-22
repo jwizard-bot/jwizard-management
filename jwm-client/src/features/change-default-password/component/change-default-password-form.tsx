@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { useEffect } from 'react';
 import { FormProvider, SubmitHandler } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
 import { AuthCardWrapper } from '@/component/auth';
@@ -15,10 +14,9 @@ const ChangeDefaultPasswordForm: React.FC = (): React.ReactElement => {
   const [changeDefaultPassword, { isError }] = useChangeDefaultPasswordMutation();
   const { setOpen } = useDialogContext();
   const dispatch = useDispatch();
-  const form = useChangeDefaultPasswordForm();
+  const form = useChangeDefaultPasswordForm(isError);
 
   const {
-    reset,
     handleSubmit,
     formState: { isSubmitting },
   } = form;
@@ -26,12 +24,6 @@ const ChangeDefaultPasswordForm: React.FC = (): React.ReactElement => {
   const onSubmit: SubmitHandler<ChangeDefaultPasswordReqDto> = async data => {
     await changeDefaultPassword(data);
   };
-
-  useEffect(() => {
-    if (isError) {
-      reset();
-    }
-  }, [isError]);
 
   return (
     <AuthCardWrapper caption="Change your default account password (or skip and go to dashbord page).">

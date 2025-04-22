@@ -22,7 +22,7 @@ const useChangePasswordForm = (isMutationError: boolean): UseFormReturn<ChangePa
   useMutationForm<ChangePasswordReqDto>({
     isMutationError,
     onErrorCallback: form => {
-      form.reset();
+      form.resetField('oldPassword');
     },
     resolver: yupResolver(formSchema),
   });
