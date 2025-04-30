@@ -58,7 +58,7 @@ class AuthController(
 	private val checkMfa = AuthNoMfaRouteHandler { ctx, sessionUser ->
 		val code = ctx.pathParam("code")
 		val loggedUserData = authService.checkMfa(code, sessionUser)
-			?: throw HttpException(SpecifiedException.INCORRECT_MFA_TOKEN)
+			?: throw HttpException(SpecifiedException.INCORRECT_OR_EXPIRED_MFA_TOKEN)
 		ctx.json(CheckMfaResDto(loggedUserData))
 	}
 
