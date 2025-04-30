@@ -12,6 +12,10 @@ server:
       ttl-sec: 3600 # 1h
       sid-token-length: 32 # in bytes
       csrf-token-length: 32 # in bytes
+ota:
+  token:
+    length: 10
+    ttl-sec: 600 # 10 minutes
 
 cf:
   captcha:
