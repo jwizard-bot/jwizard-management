@@ -38,6 +38,7 @@ dependencies {
 	implementation(libs.kotlin)
 	implementation(libs.logbackClassic)
 	implementation(libs.jwizardLib)
+	implementation(libs.totp)
 
 	testImplementation(libs.junitJupiter)
 	testImplementation(libs.junitJupiterEngine)
