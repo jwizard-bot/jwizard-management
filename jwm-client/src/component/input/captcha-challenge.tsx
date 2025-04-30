@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useRef } from 'react';
 import { useController, useFormContext } from 'react-hook-form';
 import { config } from '@/config';
-import { CfTokenProtected } from '@/redux/api/auth/type';
+import { CfTokenProtected } from '@/redux/api/type';
 import { Turnstile, TurnstileInstance } from '@marsidev/react-turnstile';
 import { Box, Typography } from '@mui/material';
 
