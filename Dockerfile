@@ -1,4 +1,21 @@
-FROM eclipse-temurin:17-jdk-alpine AS build
+# build frontend separately
+FROM node:22-alpine AS client
+
+ENV BUILD_DIR=/build/jwm
+
+RUN mkdir -p $BUILD_DIR
+WORKDIR $BUILD_DIR/jwm-client
+
+COPY jwm-client/package.json $BUILD_DIR/package.json
+COPY jwm-client/yarn.lock $BUILD_DIR/yarn.lock
+
+RUN yarn install --frozen-lockfile
+
+COPY jwm-client $BUILD_DIR
+
+RUN yarn build
+
+FROM eclipse-temurin:17-jdk-alpine AS server
 
 SHELL ["/bin/sh", "-c"]
 
@@ -30,18 +47,16 @@ COPY jwm-client/build.gradle.kts $BUILD_DIR/jwm-client/build.gradle.kts
 COPY jwm-server/build.gradle.kts $BUILD_DIR/jwm-server/build.gradle.kts
 
 RUN chmod +x $BUILD_DIR/gradlew
-RUN cd $BUILD_DIR
-
 RUN ./gradlew dependencies --no-daemon
 
 # copy rest of resources
-COPY jwm-client $BUILD_DIR/jwm-client
+COPY --from=client $BUILD_DIR/target/dist $BUILD_DIR/jwm-server/src/main/resources/static
 COPY jwm-server $BUILD_DIR/jwm-server
 COPY docker $BUILD_DIR/docker
 
 RUN ./gradlew clean --no-daemon
 RUN JWIZARD_VERSION=${JWIZARD_VERSION} \
-  ./gradlew shadowJar -PbuildFrontend --no-daemon
+  ./gradlew shadowJar --no-daemon
 
 FROM eclipse-temurin:17-jre-alpine
 
@@ -51,8 +66,8 @@ ENV JAR_NAME=jwizard-management.jar
 
 WORKDIR $ENTRY_DIR
 
-COPY --from=build $BUILD_DIR/.bin/$JAR_NAME $ENTRY_DIR/$JAR_NAME
-COPY --from=build $BUILD_DIR/docker/entrypoint $ENTRY_DIR/entrypoint
+COPY --from=server $BUILD_DIR/.bin/$JAR_NAME $ENTRY_DIR/$JAR_NAME
+COPY --from=server $BUILD_DIR/docker/entrypoint $ENTRY_DIR/entrypoint
 
 RUN sed -i \
   -e "s/\$JAR_NAME/$JAR_NAME/g" \

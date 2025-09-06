@@ -5,6 +5,7 @@
 .kotlin
 **/build
 
+jwm-client/node_modules
 jwm-client/target
 jwm-client/.eslintrc.json
 jwm-client/.prettierrc.json
