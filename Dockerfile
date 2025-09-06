@@ -41,7 +41,7 @@ COPY docker $BUILD_DIR/docker
 
 RUN ./gradlew clean --no-daemon
 RUN JWIZARD_VERSION=${JWIZARD_VERSION} \
-  ./gradlew shadowJar --no-daemon
+  ./gradlew shadowJar -PbuildFrontend --no-daemon
 
 FROM eclipse-temurin:17-jre-alpine
 
