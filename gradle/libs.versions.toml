@@ -4,7 +4,7 @@ gradleNodeVersion = "7.1.0"
 junitJupiterVersion = "5.11.4"
 jwizardLibVersion = "latest"
 kotlinVersion = "2.0.20"
-logbackVersion = "1.5.18"
+logbackVersion = "1.5.20"
 shadowJarVersion = "8.1.1"
 totpVersion = "1.7.1"
 
