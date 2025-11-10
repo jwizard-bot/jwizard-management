@@ -15,7 +15,7 @@ COPY jwm-client $BUILD_DIR
 
 RUN yarn build
 
-FROM eclipse-temurin:17-jdk-alpine AS server
+FROM eclipse-temurin:21-jdk-alpine AS server
 
 SHELL ["/bin/sh", "-c"]
 
@@ -58,7 +58,7 @@ RUN ./gradlew clean --no-daemon
 RUN JWIZARD_VERSION=${JWIZARD_VERSION} \
   ./gradlew shadowJar --no-daemon
 
-FROM eclipse-temurin:17-jre-alpine
+FROM eclipse-temurin:21-jre-alpine
 
 ENV BUILD_DIR=/build/jwm
 ENV ENTRY_DIR=/app/jwm
