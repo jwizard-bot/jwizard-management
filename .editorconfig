@@ -1,7 +1,7 @@
 root = true
 
 [*]
-indent_style = tab
+indent_style = space
 indent_size = 2
 ij_smart_tabs = true
 tab_width = 2
@@ -11,5 +11,5 @@ trim_trailing_whitespace = true
 insert_final_newline = true
 max_line_length = 100
 
-[{jwm-client/**,*.md}]
-indent_style = space
+[{*.kt,*.kts}]
+indent_style = tab
