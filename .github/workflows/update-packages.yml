@@ -29,16 +29,12 @@ jobs:
         run: exec/prepare
 
       - name: Run packages grabber (server)
-        run: |
-          source .venv/bin/activate
-          exec/run-with-config packages_grabber \
-            "${{ secrets.CONFIG_FILE_CONTENT }}" \
-            --repo ${{ github.repository }}
+        run: exec/run-with-config packages_grabber \
+          "${{ secrets.CONFIG_FILE_CONTENT }}" \
+          --repo ${{ github.repository }}
 
       - name: Run packages grabber (client)
-        run: |
-          source .venv/bin/activate
-          exec/run-with-config packages_grabber \
-            "${{ secrets.CONFIG_FILE_CONTENT }}" \
-            --repo ${{ github.repository }}
-            --dir jwm-client
+        run: exec/run-with-config packages_grabber \
+          "${{ secrets.CONFIG_FILE_CONTENT }}" \
+          --repo ${{ github.repository }} \
+          --dir jwm-client
