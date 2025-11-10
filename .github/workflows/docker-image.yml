@@ -116,6 +116,7 @@ jobs:
           file: ./Dockerfile.pipeline
           push: true
           tags: milosz08/jwizard-management:latest
+          platforms: linux/amd64,linux/arm64
 
       - name: Logout from Docker Hub
         run: docker logout
