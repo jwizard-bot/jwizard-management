@@ -53,6 +53,7 @@
     "vite": "^7.1.11"
   },
   "resolutions": {
-    "esbuild": "^0.25.0"
+    "esbuild": "^0.25.0",
+    "js-yaml": "^4.1.1"
   }
 }
