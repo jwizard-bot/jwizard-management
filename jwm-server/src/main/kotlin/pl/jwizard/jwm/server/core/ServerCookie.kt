@@ -11,8 +11,8 @@ enum class ServerCookie(val cookieName: String) {
 		value: String,
 		domain: String,
 		ttl: Int,
-		httpOnly: Boolean,
-		secure: Boolean,
+		httpOnly: Boolean = true,
+		secure: Boolean = true,
 	) = Cookie(
 		cookieName,
 		value,
