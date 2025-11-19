@@ -36,6 +36,9 @@ class SessionServiceImpl(
 	private val csrfTokenLength = environment
 		.getProperty<Int>(ServerProperty.SERVER_AUTH_SESSION_CSRF_TOKEN_LENGTH)
 
+	override val cookieDomain = environment
+		.getProperty<String>(ServerProperty.SERVER_AUTH_COOKIE_DOMAIN)
+
 	override fun mySessions(sessionUser: SessionUser): SessionsDataResDto {
 		val sessions = sessionSupplier.getMySessions(sessionUser.userId)
 		val currentSession = sessions

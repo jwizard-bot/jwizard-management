@@ -49,7 +49,7 @@ class SessionController(private val sessionService: SessionService) : HttpContro
 		val resDto = sessionService.revalidate(sessionId?.let { base64decode(it) })
 		if (!resDto.exists) {
 			// delete cookie if selected session not exists or is expired
-			ctx.removeCookie(ServerCookie.SID)
+			ctx.removeCookie(ServerCookie.SID, sessionService.cookieDomain)
 		}
 		ctx.json(resDto)
 	}

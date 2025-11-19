@@ -39,7 +39,7 @@ abstract class AuthenticationFilterBase(
 		val decodedSessionId = base64decode(sessionId)
 		val session = sessionFilterService.getUserSession(decodedSessionId)
 		if (session == null) {
-			ctx.removeCookie(ServerCookie.SID)
+			ctx.removeCookie(ServerCookie.SID, cookieDomain)
 			log.debug("Not found active session with session ID: \"{}\". Delete cookie.", sessionId)
 			throw UnauthorizedResponse()
 		}
@@ -47,7 +47,7 @@ abstract class AuthenticationFilterBase(
 		// if session expired, remove it from db and return 401
 		if (session.expiredAtUtc.isBefore(now)) {
 			sessionFilterService.deleteExpiredSession(decodedSessionId, session.userId)
-			ctx.removeCookie(ServerCookie.SID)
+			ctx.removeCookie(ServerCookie.SID, cookieDomain)
 			log.debug("Session with session ID: \"{}\" is expired. Delete cookie.", sessionId)
 			throw UnauthorizedResponse()
 		}

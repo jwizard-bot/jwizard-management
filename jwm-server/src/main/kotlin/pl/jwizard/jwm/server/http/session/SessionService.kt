@@ -5,6 +5,8 @@ import pl.jwizard.jwm.server.http.session.dto.RevalidateStateResDto
 import pl.jwizard.jwm.server.http.session.dto.SessionsDataResDto
 
 interface SessionService {
+	val cookieDomain: String
+
 	fun mySessions(sessionUser: SessionUser): SessionsDataResDto
 
 	fun deleteMySessionsBasedSessionId(

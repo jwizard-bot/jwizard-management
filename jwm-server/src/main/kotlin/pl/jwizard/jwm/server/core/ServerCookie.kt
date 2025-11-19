@@ -22,9 +22,27 @@ enum class ServerCookie(val cookieName: String) {
 		secure = secure
 	)
 
+	fun removeCookie(
+		domain: String,
+		httpOnly: Boolean = true,
+		secure: Boolean = true,
+	) = Cookie(
+		cookieName,
+		value = "",
+		domain = domain,
+		maxAge = 0,
+		isHttpOnly = httpOnly,
+		secure = secure,
+	)
+
 	companion object {
 		fun Context.cookie(serverCookie: ServerCookie) = cookie(serverCookie.cookieName)
 
-		fun Context.removeCookie(serverCookie: ServerCookie) = removeCookie(serverCookie.cookieName)
+		// for cross-domain cookie must be removed manually, by setting maxAge to 0
+		// removeCookie() method from javalin not working in this case!
+		fun Context.removeCookie(serverCookie: ServerCookie, domain: String) {
+			res().setHeader("Set-Cookie", null) // clear cookies from middlewares
+			cookie(serverCookie.removeCookie(domain))
+		}
 	}
 }

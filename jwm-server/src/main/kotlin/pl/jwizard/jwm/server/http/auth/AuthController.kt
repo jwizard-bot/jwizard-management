@@ -71,7 +71,7 @@ class AuthController(
 
 	private val cancelMfa = AuthNoMfaRouteHandler { ctx, sessionUser ->
 		authService.logout(sessionUser)
-		ctx.removeCookie(ServerCookie.SID)
+		ctx.removeCookie(ServerCookie.SID, authService.cookieDomain)
 		ctx.status(HttpStatus.NO_CONTENT)
 	}
 
@@ -92,7 +92,7 @@ class AuthController(
 
 	private val logout = AuthRouteHandler { ctx, sessionUser ->
 		authService.logout(sessionUser)
-		ctx.removeCookie(ServerCookie.SID)
+		ctx.removeCookie(ServerCookie.SID, authService.cookieDomain)
 		ctx.status(HttpStatus.NO_CONTENT)
 	}
 
