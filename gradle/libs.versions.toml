@@ -1,17 +1,18 @@
 [versions]
 bcryptVersion = "0.10.2"
 gradleNodeVersion = "7.1.0"
-junitJupiterVersion = "5.11.4"
+junitJupiterVersion = "6.0.1"
 jwizardLibVersion = "latest"
-kotlinVersion = "2.0.20"
+kotlinVersion = "2.2.0"
 logbackVersion = "1.5.20"
-shadowJarVersion = "8.1.1"
+shadowJarVersion = "8.1.8"
 totpVersion = "1.7.1"
 
 [libraries]
 bcrypt = { module = "at.favre.lib:bcrypt", version.ref = "bcryptVersion" }
 junitJupiter = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junitJupiterVersion" }
 junitJupiterEngine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junitJupiterVersion" }
+junitPlatformLauncher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junitJupiterVersion" }
 jwizardLib = { module = "pl.jwizard:jwizard-lib", version.ref = "jwizardLibVersion" }
 kotlin = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlinVersion" }
 logbackClassic = { module = "ch.qos.logback:logback-classic", version.ref = "logbackVersion" }
@@ -19,5 +20,5 @@ totp = { module = "dev.samstevens.totp:totp", version.ref = "totpVersion" }
 
 [plugins]
 kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlinVersion" }
-shadowJar = { id = "com.github.johnrengelman.shadow", version.ref = "shadowJarVersion" }
+shadowJar = { id = "io.github.goooler.shadow", version.ref = "shadowJarVersion" }
 gradleNode = { id = "com.github.node-gradle.node", version.ref = "gradleNodeVersion" }
