@@ -1,13 +1,3 @@
-# JWizard Management
-
-JWizard is an open-source Discord music bot handling audio content from various multimedia sources
-with innovative web player. This repository contains web interface to simplify configuration,
-updates and management of JWizard infrastructure.
-
-[Webpage](https://jwizard.pl)
-| [GitHub repository](https://github.com/jwizard-bot/jwizard-management)
-| [Support](https://github.com/sponsors/jwizard-bot)
-
 ## Build image
 
 ```bash
